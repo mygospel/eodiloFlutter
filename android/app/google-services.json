@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "278391490836",
+    "project_id": "eodilo",
+    "storage_bucket": "eodilo.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:278391490836:android:7944f08987e768f53f5a01",
+        "android_client_info": {
+          "package_name": "kr.co.expertbuilder.eodilo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "278391490836-lsuhkpic9f6cevmc11jg8e1i7vunrm91.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD_tBEsxevyf_JrHNOjRGVuX_QGDFpWDYU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "278391490836-lsuhkpic9f6cevmc11jg8e1i7vunrm91.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
