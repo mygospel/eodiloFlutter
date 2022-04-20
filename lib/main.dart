@@ -145,6 +145,11 @@ class _WebViewExampleState extends State<WebViewExample> {
 
   @override
   Widget build(BuildContext context) {
+    Size screenSize = MediaQuery.of(context).size;
+
+    double width = screenSize.width;
+    double height = screenSize.height;
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: false,
