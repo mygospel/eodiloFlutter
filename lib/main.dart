@@ -6,7 +6,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import 'package:eodilo/widget/bottom_bar.dart';
+//import 'package:eodilo/widget/bottom_bar.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:device_info/device_info.dart';
 
@@ -151,59 +151,65 @@ class _WebViewExampleState extends State<WebViewExample> {
     double height = screenSize.height;
 
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: false,
-        titleSpacing: 0.0,
-        title: Transform(
-          // you can forcefully translate values left side using Transform
-          transform: Matrix4.translationValues(10.0, 0.0, 0.0),
-          child: Text(
-            "어디로",
-            style: TextStyle(
-              color: Colors.white,
-            ),
-          ),
-        ),
+      // appBar: AppBar(
+      //   centerTitle: false,
+      //   titleSpacing: 0.0,
+      //   title: Transform(
+      //     // you can forcefully translate values left side using Transform
+      //     transform: Matrix4.translationValues(10.0, 0.0, 0.0),
+      //     child: Text(
+      //       "어디로",
+      //       style: TextStyle(
+      //         color: Colors.white,
+      //       ),
+      //     ),
+      //   ),
 
-        // // This drop down menu demonstrates that Flutter widgets can be shown over the web view.
-        // backgroundColor: Color(0x70007538),
-        // actions: <Widget>[
-        //   NavigationControls(_controller.future),
-        //   //SampleMenu(_controller.future),
-        // ],
-      ),
+      //   // // This drop down menu demonstrates that Flutter widgets can be shown over the web view.
+      //   // backgroundColor: Color(0x70007538),
+      //   // actions: <Widget>[
+      //   //   NavigationControls(_controller.future),
+      //   //   //SampleMenu(_controller.future),
+      //   // ],
+      // ),
       // We're using a Builder here so we have a context that is below the Scaffold
       // to allow calling Scaffold.of(context) so we can show a snackbar.
       body: Builder(builder: (BuildContext context) {
-        return WebView(
-          initialUrl: 'http://mobile.eodilo.com/',
-          javascriptMode: JavascriptMode.unrestricted,
-          onWebViewCreated: (WebViewController webViewController) async {
-            //setState(() {
-            //  _controller = webViewController;
-            //});
-            _controller.complete(webViewController);
-            //_controller.evaluateJavascript('hide_top()');
+        return Container(
+            // Even Margin On All Sides
+            margin: EdgeInsets.fromLTRB(0, 23.0, 0, 0),
+            child: WebView(
+              initialUrl: 'http://mobile.eodilo.com',
+              javascriptMode: JavascriptMode.unrestricted,
+              onWebViewCreated: (WebViewController webViewController) async {
+                //setState(() {
+                //  _controller = webViewController;
+                //});
+                _controller.complete(webViewController);
+                //_controller.evaluateJavascript('hide_top()');
 
-            // SharedPreferences prefs = await SharedPreferences.getInstance();
-            // local_token = prefs.getString('ct') ?? "";
-            await webViewController.loadUrl('http://mobile.boss2.sogero.kr/',
-                headers: {'push_token': push_token, 'token': local_token});
-          },
-          onProgress: (int progress) {
-            //print("WebView is loading first (progress : $progress%)");
-          },
-          javascriptChannels: <JavascriptChannel>{
-            _toasterJavascriptChannel(context),
-            _loginWeb2saveTokenJavascriptChannel(context),
-            _loginAutoJavascriptChannel(context),
-            _alertJavascriptChannel(context),
-          },
-          onPageFinished: (String url) async {
-            //await _controller.evaluateJavascript('hide_top()');
-          },
-          gestureNavigationEnabled: true,
-        );
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                local_token = prefs.getString('ct') ?? "";
+
+                await webViewController.loadUrl(
+                    'http://mobile.eodilo.com/login/autoLogin',
+                    headers: {'push_token': push_token, 'token': local_token});
+                print({'push_token': push_token, 'token': local_token});
+              },
+              onProgress: (int progress) {
+                print("WebView is loading first (progress : $progress%)");
+              },
+              javascriptChannels: <JavascriptChannel>{
+                _toasterJavascriptChannel(context),
+                _loginWeb2saveTokenJavascriptChannel(context),
+                _loginAutoJavascriptChannel(context),
+                _alertJavascriptChannel(context),
+              },
+              onPageFinished: (String url) async {
+                //await _controller.evaluateJavascript('hide_top()');
+              },
+              gestureNavigationEnabled: true,
+            ));
       }),
       //bottomNavigationBar: Bottom(),
     );
@@ -228,7 +234,7 @@ class _WebViewExampleState extends State<WebViewExample> {
         name: 'LoginControl',
         onMessageReceived: (JavascriptMessage message) async {
           final SharedPreferences prefs = await _prefs;
-
+          print("로그인을 했습니다.");
           prefs.setString("ct", message.message);
         });
   }
