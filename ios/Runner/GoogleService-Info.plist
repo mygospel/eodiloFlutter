@@ -3,21 +3,21 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>278391490836-jth96iuumk46phggeorhuh2se6pgnunu.apps.googleusercontent.com</string>
+	<string>220799446827-nmmgfcrc4cdgmpficghefvpo9pl9vvdp.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.278391490836-jth96iuumk46phggeorhuh2se6pgnunu</string>
+	<string>com.googleusercontent.apps.220799446827-nmmgfcrc4cdgmpficghefvpo9pl9vvdp</string>
 	<key>API_KEY</key>
-	<string>AIzaSyBUdlrVX06OeBprHK_svfKa_4whUodj1Rg</string>
+	<string>AIzaSyDOxJklbR0yKNHPrIr4QCJ7b9fI98ho6QA</string>
 	<key>GCM_SENDER_ID</key>
-	<string>278391490836</string>
+	<string>220799446827</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>kr.co.expertbuilder.eodilo</string>
+	<string>kr.co.expertbuilder.nongdo100</string>
 	<key>PROJECT_ID</key>
-	<string>eodilo</string>
+	<string>nongdo100</string>
 	<key>STORAGE_BUCKET</key>
-	<string>eodilo.appspot.com</string>
+	<string>nongdo100.appspot.com</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -29,6 +29,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:278391490836:ios:1bb56f708973495f3f5a01</string>
+	<string>1:220799446827:ios:1b88a94459c862c7855f6e</string>
 </dict>
 </plist>

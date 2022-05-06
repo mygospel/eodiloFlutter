@@ -34,23 +34,8 @@ target 'Runner' do
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
 end
 
-#post_install do |installer|
-#  installer.pods_project.targets.each do |target|
-#    flutter_additional_ios_build_settings(target)
-#  end
-#end
-
 post_install do |installer|
-  installer.pods_project.build_configuration_list.build_configurations.each do |configuration|
-    configuration.build_settings['CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES'] = 'YES'
+  installer.pods_project.targets.each do |target|
+    flutter_additional_ios_build_settings(target)
   end
 end
-
-# 요거 나중에 넣은거.. 뺄수도 있음.
-# add the Firebase pod for Google Analytics
-pod 'Firebase/Analytics'
-# or pod ‘Firebase/AnalyticsWithoutAdIdSupport’
-# for Analytics without IDFA collection capability
-
-# add pods for any other desired Firebase products
-# https://firebase.google.com/docs/ios/setup#available-pods
