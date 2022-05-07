@@ -177,7 +177,7 @@ class _WebViewExampleState extends State<WebViewExample> {
       body: Builder(builder: (BuildContext context) {
         return Container(
             // Even Margin On All Sides
-            margin: EdgeInsets.fromLTRB(0, 23.0, 0, 0),
+            margin: EdgeInsets.fromLTRB(0, 50.0, 0, 0),
             child: WebView(
               initialUrl: 'http://mobile.eodilo.com',
               javascriptMode: JavascriptMode.unrestricted,
