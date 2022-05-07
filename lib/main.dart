@@ -51,40 +51,51 @@ class App extends StatefulWidget {
   _AppState createState() => _AppState();
 }
 
-late double pos_latitude;
-late double pos_longitude;
+late double pos_latitude = 0;
+late double pos_longitude = 0;
 
 Future<void> getMyCurrentLocation() async {
   var requestStatus = await Permission.location.request();
   var status = await Permission.location.status;
-  if (requestStatus.isGranted && status.isLimited) {
+  if (requestStatus.isGranted || status.isLimited) {
     // isLimited - 제한적 동의 (ios 14 < )
     // 요청 동의됨
-    print("isGranted");
     if (await Permission.locationWhenInUse.serviceStatus.isEnabled) {
       // 요청 동의 + gps 켜짐
       var position = await Geolocator.getCurrentPosition();
       pos_latitude = position.latitude;
       pos_longitude = position.longitude;
-      print("serviceStatusIsEnabled position = ${position.toString()}");
+
+      print("==> 현재좌표 = ${position.toString()}");
     } else {
       // 요청 동의 + gps 꺼짐
-      print("serviceStatusIsDisabled");
+      print("==> 권한이 없습니다.");
+
+      pos_latitude = 0;
+      pos_longitude = 0;
     }
   } else if (requestStatus.isPermanentlyDenied || status.isPermanentlyDenied) {
     // 권한 요청 거부, 해당 권한에 대한 요청에 대해 다시 묻지 않음 선택하여 설정화면에서 변경해야함. android
-    print("isPermanentlyDenied");
+    print("==> 위치정보조회 권한이 없습니다.");
     openAppSettings();
+    pos_latitude = 0;
+    pos_longitude = 0;
   } else if (status.isRestricted) {
     // 권한 요청 거부, 해당 권한에 대한 요청을 표시하지 않도록 선택하여 설정화면에서 변경해야함. ios
-    print("isRestricted");
+    print("==> 위치정보조회 권한이 없습니다.");
     openAppSettings();
+    pos_latitude = 0;
+    pos_longitude = 0;
   } else if (status.isDenied) {
     // 권한 요청 거절
-    print("권한요청 거절");
+    print("==> 위치정보조회 권한이 거절되었습니다.");
+    pos_latitude = 0;
+    pos_longitude = 0;
+  } else {
+    print("==> 이도저도 아님");
   }
-  print("requestStatus ${requestStatus.name}");
-  print("status ${status.name}");
+  print("==> 권한요청상태 ${requestStatus.name}");
+  print("==> 상태 ${status.name}");
 
   // // 위치권한을 가지고 있는지 확인
   // var status_position = await Permission.location.status;
@@ -336,17 +347,23 @@ class _WebViewExampleState extends State<WebViewExample> {
           print(message.message);
 
           if (message.message == "get_position") {
-            getMyCurrentLocation();
-
+            print("==> 위치정보를 요청받았습니다.");
             Scaffold.of(context).showSnackBar(
-              SnackBar(content: Text("appPos($pos_latitude , $pos_longitude)")),
+              SnackBar(content: Text("==> 위치정보를 요청받았습니다.")),
             );
 
-            _myController.evaluateJavascript("appPos(126.79635, 37.71806)");
+            getMyCurrentLocation();
 
-            // Scaffold.of(context).showSnackBar(
-            //   SnackBar(content: Text("나의 위치 $pos_latitude $pos_longitude")),
-            // );
+            if (pos_latitude >= 0) {}
+
+            print("==> 위치정보를 결과를 받았습니다.");
+
+            _myController
+                .evaluateJavascript("appPos($pos_latitude, $pos_longitude)");
+
+            Scaffold.of(context).showSnackBar(
+              SnackBar(content: Text("나의 위치 $pos_latitude $pos_longitude")),
+            );
           } else {
             Scaffold.of(context).showSnackBar(
               SnackBar(content: Text(message.message)),
