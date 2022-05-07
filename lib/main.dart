@@ -51,25 +51,55 @@ class App extends StatefulWidget {
   _AppState createState() => _AppState();
 }
 
-late double latitude2;
-late double longitude2;
+late double pos_latitude;
+late double pos_longitude;
 
 Future<void> getMyCurrentLocation() async {
-  // 위치권한을 가지고 있는지 확인
-  var status_position = await Permission.location.status;
-  print("위치 정보 시작");
-  if (status_position.isGranted) {
-    // 1-2. 권한이 있는 경우 위치정보를 받아와서 변수에 저장합니다.
-    Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
-
-    latitude2 = position.latitude;
-    longitude2 = position.longitude;
-    print("나의 위치 좌표는 $latitude2 $longitude2");
-  } else {
-    // 1-3. 권한이 없는 경우
-    print("위치 권한이 필요합니다.");
+  var requestStatus = await Permission.location.request();
+  var status = await Permission.location.status;
+  if (requestStatus.isGranted && status.isLimited) {
+    // isLimited - 제한적 동의 (ios 14 < )
+    // 요청 동의됨
+    print("isGranted");
+    if (await Permission.locationWhenInUse.serviceStatus.isEnabled) {
+      // 요청 동의 + gps 켜짐
+      var position = await Geolocator.getCurrentPosition();
+      pos_latitude = position.latitude;
+      pos_longitude = position.longitude;
+      print("serviceStatusIsEnabled position = ${position.toString()}");
+    } else {
+      // 요청 동의 + gps 꺼짐
+      print("serviceStatusIsDisabled");
+    }
+  } else if (requestStatus.isPermanentlyDenied || status.isPermanentlyDenied) {
+    // 권한 요청 거부, 해당 권한에 대한 요청에 대해 다시 묻지 않음 선택하여 설정화면에서 변경해야함. android
+    print("isPermanentlyDenied");
+    openAppSettings();
+  } else if (status.isRestricted) {
+    // 권한 요청 거부, 해당 권한에 대한 요청을 표시하지 않도록 선택하여 설정화면에서 변경해야함. ios
+    print("isRestricted");
+    openAppSettings();
+  } else if (status.isDenied) {
+    // 권한 요청 거절
+    print("권한요청 거절");
   }
+  print("requestStatus ${requestStatus.name}");
+  print("status ${status.name}");
+
+  // // 위치권한을 가지고 있는지 확인
+  // var status_position = await Permission.location.status;
+  // print("위치 정보 시작");
+  // if (status_position.isGranted) {
+  //   // 1-2. 권한이 있는 경우 위치정보를 받아와서 변수에 저장합니다.
+  //   Position position = await Geolocator.getCurrentPosition(
+  //       desiredAccuracy: LocationAccuracy.high);
+
+  //   pos_latitude = position.latitude;
+  //   pos_longitude = position.longitude;
+  // } else {
+  //   // 1-3. 권한이 없는 경우
+  //   print("위치 권한이 필요합니다.");
+  // }
 }
 
 class _AppState extends State<App> {
@@ -97,6 +127,11 @@ class _AppState extends State<App> {
     });
 
     return true;
+  }
+
+  void putPosition2(WebViewController controller, BuildContext context) async {
+    await controller
+        .evaluateJavascript("appPos('$pos_latitude $pos_longitude')");
   }
 
   @override
@@ -165,15 +200,17 @@ class _WebViewExampleState extends State<WebViewExample> {
 
   /*  위치정보관련 변수 */
 
-  Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   final Completer<WebViewController> _controller =
       Completer<WebViewController>();
+  late WebViewController _myController;
+
+  Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
   @override
   void initState() {
     super.initState();
 
-    getMyCurrentLocation();
+    //getMyCurrentLocation();
 
     if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
   }
@@ -220,6 +257,9 @@ class _WebViewExampleState extends State<WebViewExample> {
                 //setState(() {
                 //  _controller = webViewController;
                 //});
+
+                _myController = webViewController; // 외부연결을 위해 추가함?
+
                 _controller.complete(webViewController);
                 //_controller.evaluateJavascript('hide_top()');
 
@@ -271,6 +311,9 @@ class _WebViewExampleState extends State<WebViewExample> {
           final SharedPreferences prefs = await _prefs;
           print("로그인을 했습니다.");
           prefs.setString("ct", message.message);
+          Scaffold.of(context).showSnackBar(
+            SnackBar(content: Text("로그인을 했습니다.")),
+          );
         });
   }
 
@@ -287,20 +330,34 @@ class _WebViewExampleState extends State<WebViewExample> {
 
   JavascriptChannel _alertJavascriptChannel(BuildContext context) {
     return JavascriptChannel(
-        name: 'Alert',
+        name: 'AlertControl',
         onMessageReceived: (JavascriptMessage message) {
           // ignore: avoid_print
           print(message.message);
-          /*
-          Scaffold.of(context).showSnackBar(
-            SnackBar(content: Text(message.message)),
-          );
-          Toast.show(message.message, context,
-              duration: Toast.LENGTH_LONG,
-              gravity: Toast.CENTER,
-              backgroundColor: Colors.black38,
-              backgroundRadius: 5);
-        */
+
+          if (message.message == "get_position") {
+            getMyCurrentLocation();
+
+            Scaffold.of(context).showSnackBar(
+              SnackBar(content: Text("appPos($pos_latitude , $pos_longitude)")),
+            );
+
+            _myController.evaluateJavascript("appPos(126.79635, 37.71806)");
+
+            // Scaffold.of(context).showSnackBar(
+            //   SnackBar(content: Text("나의 위치 $pos_latitude $pos_longitude")),
+            // );
+          } else {
+            Scaffold.of(context).showSnackBar(
+              SnackBar(content: Text(message.message)),
+            );
+          }
+
+          // Toast.show(message.message, context,
+          //     duration: Toast.LENGTH_LONG,
+          //     gravity: Toast.CENTER,
+          //     backgroundColor: Colors.black38,
+          //     backgroundRadius: 5);
         });
   }
 }
