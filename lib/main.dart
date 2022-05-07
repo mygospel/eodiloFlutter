@@ -9,6 +9,8 @@ import 'package:webview_flutter/webview_flutter.dart';
 //import 'package:eodilo/widget/bottom_bar.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:device_info/device_info.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 //import 'package:http/http.dart' as http;
@@ -47,6 +49,27 @@ class App extends StatefulWidget {
   // Create the initialization Future outside of `build`:
   @override
   _AppState createState() => _AppState();
+}
+
+late double latitude2;
+late double longitude2;
+
+Future<void> getMyCurrentLocation() async {
+  // 위치권한을 가지고 있는지 확인
+  var status_position = await Permission.location.status;
+  print("위치 정보 시작");
+  if (status_position.isGranted) {
+    // 1-2. 권한이 있는 경우 위치정보를 받아와서 변수에 저장합니다.
+    Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+
+    latitude2 = position.latitude;
+    longitude2 = position.longitude;
+    print("나의 위치 좌표는 $latitude2 $longitude2");
+  } else {
+    // 1-3. 권한이 없는 경우
+    print("위치 권한이 필요합니다.");
+  }
 }
 
 class _AppState extends State<App> {
@@ -132,6 +155,16 @@ class WebViewExample extends StatefulWidget {
 }
 
 class _WebViewExampleState extends State<WebViewExample> {
+  /*  위치정보관련 변수 */
+  static const String _kLocationServicesDisabledMessage =
+      'Location services are disabled.';
+  static const String _kPermissionDeniedMessage = 'Permission denied.';
+  static const String _kPermissionDeniedForeverMessage =
+      'Permission denied forever.';
+  static const String _kPermissionGrantedMessage = 'Permission granted.';
+
+  /*  위치정보관련 변수 */
+
   Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   final Completer<WebViewController> _controller =
       Completer<WebViewController>();
@@ -139,6 +172,8 @@ class _WebViewExampleState extends State<WebViewExample> {
   @override
   void initState() {
     super.initState();
+
+    getMyCurrentLocation();
 
     if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
   }
