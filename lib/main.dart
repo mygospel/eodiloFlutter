@@ -11,6 +11,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:device_info/device_info.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 //import 'package:http/http.dart' as http;
@@ -208,12 +209,14 @@ class _WebViewExampleState extends State<WebViewExample> {
   static const String _kPermissionDeniedForeverMessage =
       'Permission denied forever.';
   static const String _kPermissionGrantedMessage = 'Permission granted.';
-
   /*  위치정보관련 변수 */
 
   final Completer<WebViewController> _controller =
       Completer<WebViewController>();
   late WebViewController _myController;
+
+  // 디바이스에 의한 TOP설정을 위한 변수
+  double marginTop = 0.0;
 
   Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
@@ -221,7 +224,7 @@ class _WebViewExampleState extends State<WebViewExample> {
   void initState() {
     super.initState();
 
-    //getMyCurrentLocation();
+    getMyCurrentLocation();
 
     if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
   }
@@ -258,9 +261,19 @@ class _WebViewExampleState extends State<WebViewExample> {
       // We're using a Builder here so we have a context that is below the Scaffold
       // to allow calling Scaffold.of(context) so we can show a snackbar.
       body: Builder(builder: (BuildContext context) {
+        // OS 확인
+        try {
+          if (Platform.isAndroid) {
+            marginTop = 25.0;
+          } else if (Platform.isIOS) {
+            marginTop = 50.0;
+          }
+        } catch (error) {}
+
         return Container(
+
             // Even Margin On All Sides
-            margin: EdgeInsets.fromLTRB(0, 50.0, 0, 0),
+            margin: EdgeInsets.fromLTRB(0, marginTop, 0, 0),
             child: WebView(
               initialUrl: 'http://mobile.eodilo.com',
               javascriptMode: JavascriptMode.unrestricted,
@@ -347,23 +360,21 @@ class _WebViewExampleState extends State<WebViewExample> {
           print(message.message);
 
           if (message.message == "get_position") {
-            print("==> 위치정보를 요청받았습니다.");
-            Scaffold.of(context).showSnackBar(
-              SnackBar(content: Text("==> 위치정보를 요청받았습니다.")),
-            );
+            //showToast('==> 위치정보를 요청받았습니다.');
 
             getMyCurrentLocation();
 
-            if (pos_latitude >= 0) {}
+            if (pos_latitude != 0) {
+              print("==> 위치정보를 결과를 받았습니다.");
 
-            print("==> 위치정보를 결과를 받았습니다.");
+              //_myController.evaluateJavascript("appPos2(126.79635 , 37.71806)");
+              _myController
+                  .evaluateJavascript("appPos($pos_longitude, $pos_latitude)");
 
-            _myController
-                .evaluateJavascript("appPos($pos_latitude, $pos_longitude)");
-
-            Scaffold.of(context).showSnackBar(
-              SnackBar(content: Text("나의 위치 $pos_latitude $pos_longitude")),
-            );
+              Scaffold.of(context).showSnackBar(
+                SnackBar(content: Text("나의 위치 $pos_latitude $pos_longitude")),
+              );
+            }
           } else {
             Scaffold.of(context).showSnackBar(
               SnackBar(content: Text(message.message)),
@@ -613,4 +624,12 @@ class NavigationControls extends StatelessWidget {
       },
     );
   }
+}
+
+void showToast(String message) {
+  Fluttertoast.showToast(
+      msg: message,
+      backgroundColor: Colors.white,
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM);
 }
