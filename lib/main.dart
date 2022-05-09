@@ -375,6 +375,18 @@ class _WebViewExampleState extends State<WebViewExample> {
                 SnackBar(content: Text("나의 위치 $pos_latitude $pos_longitude")),
               );
             }
+          } else if (message.message == "get_position_for_voucher") {
+            //showToast('==> 위치정보를 요청받았습니다.');
+
+            getMyCurrentLocation();
+
+            if (pos_latitude != 0) {
+              print("==> 위치정보를 결과를 받았습니다.");
+
+              //_myController.evaluateJavascript("appPos2(126.79635 , 37.71806)");
+              _myController.evaluateJavascript(
+                  "get_position_for_voucher($pos_longitude, $pos_latitude)");
+            }
           } else {
             Scaffold.of(context).showSnackBar(
               SnackBar(content: Text(message.message)),
