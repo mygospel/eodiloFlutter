@@ -95,8 +95,9 @@ Future<void> getMyCurrentLocation() async {
   } else {
     print("==> 이도저도 아님");
   }
-  print("==> 권한요청상태 ${requestStatus.name}");
-  print("==> 상태 ${status.name}");
+
+  // print("==> 권한요청상태 ${requestStatus.name}");
+  // print("==> 상태 ${status.name}");
 
   // // 위치권한을 가지고 있는지 확인
   // var status_position = await Permission.location.status;
@@ -387,6 +388,8 @@ class _WebViewExampleState extends State<WebViewExample> {
               _myController.evaluateJavascript(
                   "get_position_for_voucher($pos_longitude, $pos_latitude)");
             }
+          } else if (message.message == "open_app_setting") {
+            openAppSettings();
           } else {
             Scaffold.of(context).showSnackBar(
               SnackBar(content: Text(message.message)),
