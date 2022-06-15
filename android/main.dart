@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_null_comparison, duplicate_ignore, avoid_print
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -6,12 +8,11 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-//import 'package:eodilo/widget/bottom_bar.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:device_info/device_info.dart';
-import 'package:geolocator/geolocator.dart';
+//import 'package:path_provider/path_provider.dart';
+//import 'package:device_info/device_info.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+//import './widget/bottom_bar.dart';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 //import 'package:http/http.dart' as http;
@@ -37,84 +38,20 @@ late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 //void main() => runApp(MaterialApp(home: WebViewExample()));
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   runApp(App());
 
   /// 요렇게 바꿈.
 }
 
-Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
-
 String localToken = "";
 String loginToken = "";
 String pushToken = "";
-
-late double pos_latitude = 0;
-late double pos_longitude = 0;
 
 class App extends StatefulWidget {
   // Create the initialization Future outside of `build`:
   @override
   _AppState createState() => _AppState();
-}
-
-Future<void> getMyCurrentLocation() async {
-  var requestStatus = await Permission.location.request();
-  var status = await Permission.location.status;
-  if (requestStatus.isGranted || status.isLimited) {
-    // isLimited - 제한적 동의 (ios 14 < )
-    // 요청 동의됨
-    if (await Permission.locationWhenInUse.serviceStatus.isEnabled) {
-      // 요청 동의 + gps 켜짐
-      var position = await Geolocator.getCurrentPosition();
-      pos_latitude = position.latitude;
-      pos_longitude = position.longitude;
-
-      print("==> 현재좌표 = ${position.toString()}");
-    } else {
-      // 요청 동의 + gps 꺼짐
-      print("==> 권한이 없습니다.");
-
-      pos_latitude = 0;
-      pos_longitude = 0;
-    }
-  } else if (requestStatus.isPermanentlyDenied || status.isPermanentlyDenied) {
-    // 권한 요청 거부, 해당 권한에 대한 요청에 대해 다시 묻지 않음 선택하여 설정화면에서 변경해야함. android
-    print("==> 위치정보조회 권한이 없습니다.");
-    openAppSettings();
-    pos_latitude = 0;
-    pos_longitude = 0;
-  } else if (status.isRestricted) {
-    // 권한 요청 거부, 해당 권한에 대한 요청을 표시하지 않도록 선택하여 설정화면에서 변경해야함. ios
-    print("==> 위치정보조회 권한이 없습니다.");
-    openAppSettings();
-    pos_latitude = 0;
-    pos_longitude = 0;
-  } else if (status.isDenied) {
-    // 권한 요청 거절
-    print("==> 위치정보조회 권한이 거절되었습니다.");
-    pos_latitude = 0;
-    pos_longitude = 0;
-  } else {
-    print("==> 이도저도 아님");
-  }
-
-  // print("==> 권한요청상태 ${requestStatus.name}");
-  // print("==> 상태 ${status.name}");
-
-  // // 위치권한을 가지고 있는지 확인
-  // var status_position = await Permission.location.status;
-  // print("위치 정보 시작");
-  // if (status_position.isGranted) {
-  //   // 1-2. 권한이 있는 경우 위치정보를 받아와서 변수에 저장합니다.
-  //   Position position = await Geolocator.getCurrentPosition(
-  //       desiredAccuracy: LocationAccuracy.high);
-
-  //   pos_latitude = position.latitude;
-  //   pos_longitude = position.longitude;
-  // } else {
-  //   // 1-3. 권한이 없는 경우
-  //   print("위치 권한이 필요합니다.");
-  // }
 }
 
 class _AppState extends State<App> {
@@ -126,6 +63,7 @@ class _AppState extends State<App> {
     await Firebase.initializeApp();
     FirebaseMessaging messaging = FirebaseMessaging.instance;
     if (Platform.isIOS) {
+      // ignore: unused_local_variable
       NotificationSettings settings = await messaging.requestPermission(
         alert: true,
         announcement: false,
@@ -136,21 +74,12 @@ class _AppState extends State<App> {
         sound: true,
       );
     }
-    messaging.getToken().then((token) async {
+    messaging.getToken().then((token) {
       pushToken = token ?? "";
-
-      final SharedPreferences prefs = await _prefs;
-      prefs.setString("PT", pushToken);
-      pushToken = prefs.getString('PT') ?? "";
-      print('푸쉬토큰 ==== $pushToken');
+      print('token ==== $token');
     });
 
     return true;
-  }
-
-  void putPosition2(WebViewController controller, BuildContext context) async {
-    await controller
-        .evaluateJavascript("appPos('$pos_latitude $pos_longitude')");
   }
 
   @override
@@ -223,56 +152,43 @@ class _WebViewExampleState extends State<WebViewExample> {
   late WebViewController _myController;
 
   // 디바이스에 의한 TOP설정을 위한 변수
-  double marginTop = 0.0;
+  double marginTop = -60.0;
+
+  Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
   @override
   void initState() {
     super.initState();
 
-    getMyCurrentLocation();
+    //getMyCurrentLocation();
 
     if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
   }
 
   @override
   Widget build(BuildContext context) {
-    Size screenSize = MediaQuery.of(context).size;
-
-    double width = screenSize.width;
-    double height = screenSize.height;
+    //Size screenSize = MediaQuery.of(context).size;
+    //double width = screenSize.width;
+    //double height = screenSize.height;
 
     return Scaffold(
-      // 앱바사용안함.
-      // appBar: AppBar(
-      //   centerTitle: false,
-      //   titleSpacing: 0.0,
-      //   title: Transform(
-      //     // you can forcefully translate values left side using Transform
-      //     transform: Matrix4.translationValues(10.0, 0.0, 0.0),
-      //     child: Text(
-      //       "어디로",
-      //       style: TextStyle(
-      //         color: Colors.white,
-      //       ),
-      //     ),
-      //   ),
-
-      //   // // This drop down menu demonstrates that Flutter widgets can be shown over the web view.
-      //   // backgroundColor: Color(0x70007538),
-      //   // actions: <Widget>[
-      //   //   NavigationControls(_controller.future),
-      //   //   //SampleMenu(_controller.future),
-      //   // ],
-      // ),
-      // We're using a Builder here so we have a context that is below the Scaffold
-      // to allow calling Scaffold.of(context) so we can show a snackbar.
+      appBar: AppBar(
+        centerTitle: false,
+        titleSpacing: 12,
+        title: Text("가정교회모바일"),
+        backgroundColor: Color.fromARGB(111, 31, 130, 228),
+        actions: <Widget>[
+          NavigationControls(_controller.future),
+          //DefaultMenu(_controller.future),
+        ],
+      ),
       body: Builder(builder: (BuildContext context) {
         // OS 확인
         try {
           if (Platform.isAndroid) {
-            marginTop = 25.0;
+            marginTop = 0.0;
           } else if (Platform.isIOS) {
-            marginTop = 50.0;
+            marginTop = 0.0;
           }
         } catch (error) {}
 
@@ -281,7 +197,7 @@ class _WebViewExampleState extends State<WebViewExample> {
             // Even Margin On All Sides
             margin: EdgeInsets.fromLTRB(0, marginTop, 0, 0),
             child: WebView(
-              initialUrl: 'http://mobile.eodilo.com',
+              //initialUrl: 'https://house.ilsansarang.org/mobile',
               javascriptMode: JavascriptMode.unrestricted,
               onWebViewCreated: (WebViewController webViewController) async {
                 //setState(() {
@@ -298,7 +214,7 @@ class _WebViewExampleState extends State<WebViewExample> {
                 localToken = prefs.getString('LT') ?? "";
 
                 await webViewController.loadUrl(
-                    'http://mobile.eodilo.com/login/autoLogin',
+                    'https://house.ilsansarang.org/mobile/member_autologin.html',
                     headers: {
                       'pushToken': pushToken,
                       'localToken': localToken
@@ -315,6 +231,8 @@ class _WebViewExampleState extends State<WebViewExample> {
                 _alertJavascriptChannel(context),
               },
               onPageFinished: (String url) async {
+                _myController.evaluateJavascript("hideTopNav()");
+
                 //await _controller.evaluateJavascript('hide_top()');
               },
               gestureNavigationEnabled: true,
@@ -329,10 +247,10 @@ class _WebViewExampleState extends State<WebViewExample> {
         name: 'Toaster',
         onMessageReceived: (JavascriptMessage message) {
           // ignore: deprecated_member_use
-          var aa = message.message;
-          print('Toast message  $aa');
+          var messageFromWeb = message.message;
+          print('Toast message  $messageFromWeb');
           Scaffold.of(context).showSnackBar(
-            SnackBar(content: Text(message.message)),
+            SnackBar(content: Text(messageFromWeb)),
           );
         });
   }
@@ -343,7 +261,11 @@ class _WebViewExampleState extends State<WebViewExample> {
         name: 'LoginControl',
         onMessageReceived: (JavascriptMessage message) async {
           final SharedPreferences prefs = await _prefs;
+          print("로그인을 했습니다." + message.message);
           prefs.setString("LT", message.message);
+          Scaffold.of(context).showSnackBar(
+            SnackBar(content: Text("로그인을 했습니다.")),
+          );
         });
   }
 
@@ -366,35 +288,9 @@ class _WebViewExampleState extends State<WebViewExample> {
           print(message.message);
 
           if (message.message == "get_position") {
-            //showToast('==> 위치정보를 요청받았습니다.');
-
-            getMyCurrentLocation();
-
-            if (pos_latitude != 0) {
-              print("==> 위치정보를 결과를 받았습니다.");
-
-              //_myController.evaluateJavascript("appPos2(126.79635 , 37.71806)");
-              _myController
-                  .evaluateJavascript("appPos($pos_longitude, $pos_latitude)");
-
-              Scaffold.of(context).showSnackBar(
-                SnackBar(content: Text("위치 정보 조회")),
-              );
-            }
           } else if (message.message == "get_position_for_voucher") {
             //showToast('==> 위치정보를 요청받았습니다.');
 
-            getMyCurrentLocation();
-
-            if (pos_latitude != 0) {
-              print("==> 위치정보를 결과를 받았습니다.");
-
-              //_myController.evaluateJavascript("appPos2(126.79635 , 37.71806)");
-              _myController.evaluateJavascript(
-                  "get_position_for_voucher($pos_longitude, $pos_latitude)");
-            }
-          } else if (message.message == "open_app_setting") {
-            openAppSettings();
           } else {
             Scaffold.of(context).showSnackBar(
               SnackBar(content: Text(message.message)),
@@ -420,8 +316,8 @@ enum MenuOptions {
   navigationDelegate,
 }
 
-class SampleMenu extends StatelessWidget {
-  SampleMenu(this.controller);
+class DefaultMenu extends StatelessWidget {
+  DefaultMenu(this.controller);
 
   final Future<WebViewController> controller;
   final CookieManager cookieManager = CookieManager();
@@ -562,11 +458,11 @@ class SampleMenu extends StatelessWidget {
   }
 
   void _goWeb(WebViewController controller, BuildContext context) async {
-    // 자바스크립트 실행
-    // await controller.evaluateJavascript('');
+    await controller.evaluateJavascript('login_app_token("자 가지 여기이제 화이팅...")');
   }
 
   Widget _getCookieList(String cookies) {
+    // ignore: unnecessary_null_comparison
     if (cookies == null || cookies == '""') {
       return Container();
     }
@@ -630,15 +526,15 @@ class NavigationControls extends StatelessWidget {
                       }
                     },
             ),
-            IconButton(
-              icon: const Icon(Icons.menu),
-              onPressed: !webViewReady
-                  ? null
-                  : () {
-                      //controller.reload();
-                      controller.evaluateJavascript('open_menu()');
-                    },
-            ),
+            // IconButton(
+            //   icon: const Icon(Icons.menu),
+            //   onPressed: !webViewReady
+            //       ? null
+            //       : () {
+            //           //controller.reload();
+            //           controller.evaluateJavascript('open_menu()');
+            //         },
+            // ),
           ],
         );
       },

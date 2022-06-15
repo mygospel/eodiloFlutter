@@ -1,34 +1,41 @@
 {
   "project_info": {
-    "project_number": "278391490836",
-    "project_id": "eodilo",
-    "storage_bucket": "eodilo.appspot.com"
+    "project_number": "1066881593288",
+    "project_id": "eodilo-4f033",
+    "storage_bucket": "eodilo-4f033.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:278391490836:android:7944f08987e768f53f5a01",
+        "mobilesdk_app_id": "1:1066881593288:android:277745ecf45289ba56dafd",
         "android_client_info": {
           "package_name": "kr.co.expertbuilder.eodilo"
         }
       },
       "oauth_client": [
         {
-          "client_id": "278391490836-lsuhkpic9f6cevmc11jg8e1i7vunrm91.apps.googleusercontent.com",
+          "client_id": "1066881593288-nb0sqt5c52agkfsjp9sb1du1dc603tb9.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyD_tBEsxevyf_JrHNOjRGVuX_QGDFpWDYU"
+          "current_key": "AIzaSyAjuABxVIr_9vfjGxeqss4iprKmf-Et29k"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "278391490836-lsuhkpic9f6cevmc11jg8e1i7vunrm91.apps.googleusercontent.com",
+              "client_id": "1066881593288-nb0sqt5c52agkfsjp9sb1du1dc603tb9.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "1066881593288-3a49hlev7kvusbs47a35eoujpn0230hp.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "kr.co.expertbuilder.eodilo"
+              }
             }
           ]
         }
