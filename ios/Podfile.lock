@@ -37,6 +37,8 @@ PODS:
     - GoogleUtilities/UserDefaults (~> 7.7)
     - nanopb (~> 2.30908.0)
   - Flutter (1.0.0)
+  - flutter_app_badger (1.3.0):
+    - Flutter
   - flutter_local_notifications (0.0.1):
     - Flutter
   - fluttertoast (0.0.2):
@@ -87,6 +89,7 @@ DEPENDENCIES:
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
   - firebase_messaging (from `.symlinks/plugins/firebase_messaging/ios`)
   - Flutter (from `Flutter`)
+  - flutter_app_badger (from `.symlinks/plugins/flutter_app_badger/ios`)
   - flutter_local_notifications (from `.symlinks/plugins/flutter_local_notifications/ios`)
   - fluttertoast (from `.symlinks/plugins/fluttertoast/ios`)
   - geolocator_apple (from `.symlinks/plugins/geolocator_apple/ios`)
@@ -117,6 +120,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/firebase_messaging/ios"
   Flutter:
     :path: Flutter
+  flutter_app_badger:
+    :path: ".symlinks/plugins/flutter_app_badger/ios"
   flutter_local_notifications:
     :path: ".symlinks/plugins/flutter_local_notifications/ios"
   fluttertoast:
@@ -142,6 +147,7 @@ SPEC CHECKSUMS:
   FirebaseInstallations: 40bd9054049b2eae9a2c38ef1c3dd213df3605cd
   FirebaseMessaging: 5e5118a2383b3531e730d974680954c679ca0a13
   Flutter: 50d75fe2f02b26cc09d224853bb45737f8b3214a
+  flutter_app_badger: b87fc231847b03b92ce1412aa351842e7e97932f
   flutter_local_notifications: 0c0b1ae97e741e1521e4c1629a459d04b9aec743
   fluttertoast: 16fbe6039d06a763f3533670197d01fc73459037
   geolocator_apple: cc556e6844d508c95df1e87e3ea6fa4e58c50401
