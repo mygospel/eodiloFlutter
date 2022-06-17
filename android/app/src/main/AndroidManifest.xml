@@ -45,6 +45,12 @@
               android:name="io.flutter.embedding.android.SplashScreenDrawable"
               android:resource="@drawable/launch_background"
               /-->
+
+              <!--안드로이드 포그라운드 메세지를 위해 추가-->
+              <meta-data
+              android:name="com.google.firebase.messaging.default_notification_channel_id"
+              android:value="high_importance_channel" />
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>

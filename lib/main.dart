@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -21,15 +22,110 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 /// call.
 ///
 /// To verify things are working, check out the native platform logs.
+///
+///
+///
+late AndroidNotificationChannel channel;
+
+Future _showNotification2(message) async {
+  String title, body;
+
+  // AOS, iOS에 따라 message 오는 구조가 다르다. (직접 파베 찍어보면 확인 가능)
+  if (Platform.isAndroid) {
+    title = message['title'] ?? "";
+    body = message['body'] ?? "";
+    print("AOS ${title} ${body}");
+  }
+  if (Platform.isIOS) {
+    //title = message['aps']['alert']['title'];
+    //body = message['aps']['alert']['body'];
+    print("IOS ========");
+    inspect(message);
+    print("IOS ========");
+  }
+  /* 여기서 바로 처리도 가능
+  var android = AndroidNotificationDetails('id', '제목은 이렇구요',
+      channelDescription: "내용은 이래요..",
+      importance: Importance.max,
+      priority: Priority.max);
+  var ios = IOSNotificationDetails();
+  var detail = NotificationDetails(android: android, iOS: ios);
+
+  await flutterLocalNotificationsPlugin.show(
+    0,
+    '단일 Notification',
+    '단일 Notification 내용',
+    detail,
+    payload: 'Hello Flutter',
+  );
+  */
+}
+
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // If you're going to use other Firebase services in the background, such as Firestore,
   // make sure you call `initializeApp` before using other Firebase services.
   await Firebase.initializeApp();
-  print('Handling a background message ${message.messageId}');
+  print('background 푸쉬받음 ==== ${message}');
+  print('Message data: ${message.data}');
+
+  // if (message.notification != null) {
+  //   print('Message also contained a notification: ${message.notification}');
+  // }
+
+  //_showNotification(message);
+  print('Message======================');
+  inspect(message);
+  print('Message======================');
+  //_showNotification2(message);
+}
+
+// Future _showNotification(message) async {
+//   String title, body;
+
+//   // AOS, iOS에 따라 message 오는 구조가 다르다. (직접 파베 찍어보면 확인 가능)
+//   if (Platform.isAndroid) {
+//     title = message['title'] ?? "";
+//     body = message['body'] ?? "";
+//   }
+//   if (Platform.isIOS) {
+//     title = message['aps']['alert']['title'];
+//     body = message['aps']['alert']['body'];
+//   }
+
+//   // AOS, iOS 별로 notification 표시 설정
+//   var androidNotiDetails = AndroidNotificationDetails(
+//       'dexterous.com.flutter.local_notifications', title, body,
+//       importance: Importance.max, priority: Priority.max);
+//   var iOSNotiDetails = IOSNotificationDetails();
+
+//   var details =
+//       NotificationDetails(android: androidNotiDetails, iOS: iOSNotiDetails);
+
+//   await flutterLocalNotificationsPlugin.show(
+//     0,
+//     title,
+//     body,
+//     details,
+//     payload: 'Hello Flutter',
+//   );
+//   // 0은 notification id 값을 넣으면 된다.
+// }
+
+Future<void> _firebaseMessagingForgroundHandler(RemoteMessage message) async {
+  // If you're going to use other Firebase services in the background, such as Firestore,
+  // make sure you call `initializeApp` before using other Firebase services.
+  await Firebase.initializeApp();
+  print('포그라운드 메세지 핸들링  ${message.messageId}');
 }
 
 /// Create a [AndroidNotificationChannel] for heads up notifications
-late AndroidNotificationChannel channel;
+
+// channel = const AndroidNotificationChannel channel = AndroidNotificationChannel(
+//   'high_importance_channel', // id
+//   'High Importance Notifications', // title
+//   //'This channel is used for important notifications.', // description
+//   importance: Importance.max,
+// );
 
 /// Initialize the [FlutterLocalNotificationsPlugin] package.
 late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
@@ -47,9 +143,13 @@ Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 String localToken = "";
 String loginToken = "";
 String pushToken = "";
+String rURL = "";
+String firstWebPage = "http://mobile.eodilo.com/login/autoLogin";
 
 late double pos_latitude = 0;
 late double pos_longitude = 0;
+
+late WebViewController _myController;
 
 class App extends StatefulWidget {
   // Create the initialization Future outside of `build`:
@@ -117,25 +217,38 @@ Future<void> getMyCurrentLocation() async {
   // }
 }
 
+Future<void> onSelectNotification(BuildContext context, String payload) async {
+  debugPrint("$payload");
+  showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+            title: Text('Notification Payload'),
+            content: Text('Payload: $payload'),
+          ));
+}
+
 class _AppState extends State<App> {
   /// The future is part of the state of our widget. We should not call `initializeApp`
   /// directly inside [build].
   //final Future<FirebaseApp> _initialization = Firebase.initializeApp();
+  //메시지 클릭 시 이벤트
+
+  String? token;
 
   Future<bool> _initialization() async {
     await Firebase.initializeApp();
     FirebaseMessaging messaging = FirebaseMessaging.instance;
+
     if (Platform.isIOS) {
       NotificationSettings settings = await messaging.requestPermission(
         alert: true,
-        announcement: false,
         badge: true,
-        carPlay: false,
-        criticalAlert: false,
-        provisional: false,
         sound: true,
       );
     }
+
+    token = await messaging.getToken();
+
     messaging.getToken().then((token) async {
       pushToken = token ?? "";
 
@@ -145,6 +258,51 @@ class _AppState extends State<App> {
       print('푸쉬토큰 ==== $pushToken');
     });
 
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+    // 포그라운드 알람 초기화 (iOS Configuration)
+    await FirebaseMessaging.instance
+        .setForegroundNotificationPresentationOptions(
+      alert: true, // Required to display a heads up notification
+      badge: true,
+      sound: true,
+    );
+
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      print('forground 푸쉬받음 ==== ${message}');
+      print('Message data: ${message.data}');
+
+      // if (message.notification != null) {
+      //   print('Message also contained a notification: ${message.notification}');
+      // }
+      print('Message======================');
+      inspect(message);
+      print('Message======================');
+      _showNotification2(message);
+
+      if (message.data != null) {
+        if (message.data['page'] != "") {
+          rURL = message.data['page'];
+          print("page ${message.data['page']}");
+          _myController.loadUrl(rURL);
+        }
+      }
+    });
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
+      print('메세지를 클릭했을때 여기에 옴...======================');
+      inspect(message);
+      if (message.data.containsKey("notificationType")) {
+        if (message.data["notificationType"] == "Message") {
+          // if (userRoll == "5") {
+          //   conttroller.changeTabIndex(2);
+          // } else {
+          //   conttroller.changeTabIndex(1);
+          // }
+        } else {
+          //conttroller.changeTabIndex(0);
+        }
+      }
+    });
     return true;
   }
 
@@ -220,7 +378,6 @@ class _WebViewExampleState extends State<WebViewExample> {
 
   final Completer<WebViewController> _controller =
       Completer<WebViewController>();
-  late WebViewController _myController;
 
   // 디바이스에 의한 TOP설정을 위한 변수
   double marginTop = 0.0;
@@ -228,6 +385,8 @@ class _WebViewExampleState extends State<WebViewExample> {
   @override
   void initState() {
     super.initState();
+
+    _localNotiSetting();
 
     getMyCurrentLocation();
 
@@ -297,12 +456,10 @@ class _WebViewExampleState extends State<WebViewExample> {
                 pushToken = prefs.getString('PT') ?? "";
                 localToken = prefs.getString('LT') ?? "";
 
-                await webViewController.loadUrl(
-                    'http://mobile.eodilo.com/login/autoLogin',
-                    headers: {
-                      'pushToken': pushToken,
-                      'localToken': localToken
-                    });
+                await webViewController.loadUrl(firstWebPage, headers: {
+                  'pushToken': pushToken,
+                  'localToken': localToken
+                });
                 print({'pushToken': pushToken, 'localToken': localToken});
               },
               onProgress: (int progress) {
@@ -652,4 +809,68 @@ void showToast(String message) {
       backgroundColor: Colors.white,
       toastLength: Toast.LENGTH_SHORT,
       gravity: ToastGravity.BOTTOM);
+}
+
+void _localNotiSetting() async {
+  var androidInitializationSettings =
+      AndroidInitializationSettings('@mipmap/ic_launcher');
+  // 안드로이드 알림 올 때 앱 아이콘 설정
+
+  var iOSInitializationSettings = IOSInitializationSettings(
+      requestAlertPermission: true,
+      requestBadgePermission: true,
+      requestSoundPermission: true);
+  // iOS 알림, 뱃지, 사운드 권한 셋팅
+  // 만약에 사용자에게 앱 권한을 안 물어봤을 경우 이 셋팅으로 인해 permission check 함
+
+  var initsetting = InitializationSettings(
+      android: androidInitializationSettings, iOS: iOSInitializationSettings);
+
+  flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+
+  await flutterLocalNotificationsPlugin
+      .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>()
+      ?.createNotificationChannel(channel);
+
+  await flutterLocalNotificationsPlugin.initialize(initsetting);
+  //await flutterLocalNotificationsPlugin.initialize(initsetting,      onSelectNotification: onSelectNotification);
+
+  // FirebaseMessaging.configure(
+  //   onMessage: (Map<String, dynamic> message) async {
+  //     showNotification(
+  //         message['notification']['title'], message['notification']['body']);
+  //     print("onMessage: $message");
+  //   },
+  //   onLaunch: (Map<String, dynamic> message) async {
+  //     print("onLaunch: $message");
+  //     Navigator.pushNamed(context, '/notify');
+  //   },
+  //   onResume: (Map<String, dynamic> message) async {
+  //     print("onResume: $message");
+  //   },
+  // );
+}
+
+// Future onSelectNotification3(String payload) async {
+//   showDialog(
+//     context: context,
+//     builder: (_) {
+//       return new AlertDialog(
+//         title: Text("PayLoad"),
+//         content: Text("Payload : $payload"),
+//       );
+//     },
+//   );
+// }
+
+Future<void> onSelectNotification2(
+    BuildContext context, String? payload) async {
+  //debugPrint("$payload");
+  showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+            title: Text('Notification Payload'),
+            content: Text('Payload: $payload'),
+          ));
 }
