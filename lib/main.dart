@@ -13,8 +13,10 @@ import 'package:device_info/device_info.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-
+import 'package:flutter_app_badger/flutter_app_badger.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import './widget/widget_helper.dart';
+import './helper/notification.dart';
 //import 'package:http/http.dart' as http;
 //import 'package:device_info/device_info.dart';
 
@@ -25,15 +27,15 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 ///
 ///
 ///
-late AndroidNotificationChannel channel;
 
 Future _showNotification2(message) async {
-  String title, body;
+  String title, body, badges;
 
   // AOS, iOS에 따라 message 오는 구조가 다르다. (직접 파베 찍어보면 확인 가능)
   if (Platform.isAndroid) {
     title = message['title'] ?? "";
     body = message['body'] ?? "";
+    badges = message['data']['badge'];
     print("AOS ${title} ${body}");
   }
   if (Platform.isIOS) {
@@ -44,8 +46,8 @@ Future _showNotification2(message) async {
     print("IOS ========");
   }
   /* 여기서 바로 처리도 가능
-  var android = AndroidNotificationDetails('id', '제목은 이렇구요',
-      channelDescription: "내용은 이래요..",
+  var android = AndroidNotificationDetails('id', '',
+      channelDescription: "",
       importance: Importance.max,
       priority: Priority.max);
   var ios = IOSNotificationDetails();
@@ -65,18 +67,12 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // If you're going to use other Firebase services in the background, such as Firestore,
   // make sure you call `initializeApp` before using other Firebase services.
   await Firebase.initializeApp();
-  print('background 푸쉬받음 ==== ${message}');
+  print('백그라운드에서  푸쉬받음 ==== ${message}');
   print('Message data: ${message.data}');
 
   // if (message.notification != null) {
   //   print('Message also contained a notification: ${message.notification}');
   // }
-
-  //_showNotification(message);
-  print('Message======================');
-  inspect(message);
-  print('Message======================');
-  //_showNotification2(message);
 }
 
 // Future _showNotification(message) async {
@@ -111,6 +107,12 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 //   // 0은 notification id 값을 넣으면 된다.
 // }
 
+const AndroidNotificationChannel channel2 = AndroidNotificationChannel(
+  'high_importance_channel', // id
+  'High Importance Notifications', //description
+  importance: Importance.high,
+);
+
 Future<void> _firebaseMessagingForgroundHandler(RemoteMessage message) async {
   // If you're going to use other Firebase services in the background, such as Firestore,
   // make sure you call `initializeApp` before using other Firebase services.
@@ -119,13 +121,6 @@ Future<void> _firebaseMessagingForgroundHandler(RemoteMessage message) async {
 }
 
 /// Create a [AndroidNotificationChannel] for heads up notifications
-
-// channel = const AndroidNotificationChannel channel = AndroidNotificationChannel(
-//   'high_importance_channel', // id
-//   'High Importance Notifications', // title
-//   //'This channel is used for important notifications.', // description
-//   importance: Importance.max,
-// );
 
 /// Initialize the [FlutterLocalNotificationsPlugin] package.
 late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
@@ -145,6 +140,7 @@ String loginToken = "";
 String pushToken = "";
 String rURL = "";
 String firstWebPage = "http://mobile.eodilo.com/login/autoLogin";
+String pushPage = "";
 
 late double pos_latitude = 0;
 late double pos_longitude = 0;
@@ -179,42 +175,24 @@ Future<void> getMyCurrentLocation() async {
     }
   } else if (requestStatus.isPermanentlyDenied || status.isPermanentlyDenied) {
     // 권한 요청 거부, 해당 권한에 대한 요청에 대해 다시 묻지 않음 선택하여 설정화면에서 변경해야함. android
-    print("==> 위치정보조회 권한이 없습니다.");
+    print("==> 위치정보조회 권한 없음");
     openAppSettings();
     pos_latitude = 0;
     pos_longitude = 0;
   } else if (status.isRestricted) {
     // 권한 요청 거부, 해당 권한에 대한 요청을 표시하지 않도록 선택하여 설정화면에서 변경해야함. ios
-    print("==> 위치정보조회 권한이 없습니다.");
+    print("==> 위치정보조회 권한 없음");
     openAppSettings();
     pos_latitude = 0;
     pos_longitude = 0;
   } else if (status.isDenied) {
     // 권한 요청 거절
-    print("==> 위치정보조회 권한이 거절되었습니다.");
+    print("==> 위치정보조회 권한이 거절");
     pos_latitude = 0;
     pos_longitude = 0;
   } else {
-    print("==> 이도저도 아님");
+    print("==> 아무일도 없음");
   }
-
-  // print("==> 권한요청상태 ${requestStatus.name}");
-  // print("==> 상태 ${status.name}");
-
-  // // 위치권한을 가지고 있는지 확인
-  // var status_position = await Permission.location.status;
-  // print("위치 정보 시작");
-  // if (status_position.isGranted) {
-  //   // 1-2. 권한이 있는 경우 위치정보를 받아와서 변수에 저장합니다.
-  //   Position position = await Geolocator.getCurrentPosition(
-  //       desiredAccuracy: LocationAccuracy.high);
-
-  //   pos_latitude = position.latitude;
-  //   pos_longitude = position.longitude;
-  // } else {
-  //   // 1-3. 권한이 없는 경우
-  //   print("위치 권한이 필요합니다.");
-  // }
 }
 
 Future<void> onSelectNotification(BuildContext context, String payload) async {
@@ -238,6 +216,28 @@ class _AppState extends State<App> {
   Future<bool> _initialization() async {
     await Firebase.initializeApp();
     FirebaseMessaging messaging = FirebaseMessaging.instance;
+    FirebaseMessaging.instance
+        .getInitialMessage()
+        .then((RemoteMessage? message) async {
+      if (message != null) {
+        //
+        inspect(message);
+        if (message.data.containsKey("page")) {
+          final page = message.data["page"];
+          if (page != null) {
+            print("여기는 처음입니다. ...................................");
+            //_myController.evaluateJavascript("location.href='${page}'");
+            //_myController.loadUrl(page);
+            //navigateTo(route);
+            // if (userRoll == "5") {
+            //   conttroller.changeTabIndex(2);
+            // } else {
+            //   conttroller.changeTabIndex(1);
+            // }
+          }
+        }
+      }
+    });
 
     if (Platform.isIOS) {
       NotificationSettings settings = await messaging.requestPermission(
@@ -258,8 +258,6 @@ class _AppState extends State<App> {
       print('푸쉬토큰 ==== $pushToken');
     });
 
-    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
     // 포그라운드 알람 초기화 (iOS Configuration)
     await FirebaseMessaging.instance
         .setForegroundNotificationPresentationOptions(
@@ -268,41 +266,87 @@ class _AppState extends State<App> {
       sound: true,
     );
 
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+    // 3번 실행됨..
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      print('forground 푸쉬받음 ==== ${message}');
-      print('Message data: ${message.data}');
+      RemoteNotification? notification = message.notification;
+      AndroidNotification? android = message.notification?.android;
 
-      // if (message.notification != null) {
-      //   print('Message also contained a notification: ${message.notification}');
-      // }
-      print('Message======================');
-      inspect(message);
-      print('Message======================');
-      _showNotification2(message);
-
-      if (message.data != null) {
-        if (message.data['page'] != "") {
-          rURL = message.data['page'];
-          print("page ${message.data['page']}");
-          _myController.loadUrl(rURL);
-        }
+      print('onMessage 로 들어옴.. ==== ${message}');
+      // 안드로이드일때 아래실행..
+      if (notification != null && android != null) {
+        flutterLocalNotificationsPlugin.show(
+            notification.hashCode,
+            notification.title,
+            notification.body,
+            NotificationDetails(
+              android: AndroidNotificationDetails(
+                  'your channel id', 'your channel name',
+                  channelDescription: 'your channel description',
+                  icon: 'launch_background',
+                  importance: Importance.max,
+                  priority: Priority.high,
+                  ticker: 'ticker'),
+            ));
       }
-    });
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
-      print('메세지를 클릭했을때 여기에 옴...======================');
+
       inspect(message);
-      if (message.data.containsKey("notificationType")) {
-        if (message.data["notificationType"] == "Message") {
+      if (message.data.containsKey("page")) {
+        pushPage = message.data["page"];
+        final page = message.data["page"];
+        if (page != null) {
+          //_myController.evaluateJavascript("location.href='${page}'");
+          //_myController.loadUrl(page);
+          //navigateTo(route);
           // if (userRoll == "5") {
           //   conttroller.changeTabIndex(2);
           // } else {
           //   conttroller.changeTabIndex(1);
           // }
-        } else {
-          //conttroller.changeTabIndex(0);
+        }
+      }
+      // if (message.notification != null) {
+      //   print('Message also contained a notification: ${message.notification}');
+      // }
+
+      ///_showNotification2(message);
+
+      // 푸쉬받을때니까. 이거 말고.
+      // if (message.data != null) {
+      //   if (message.data['page'] != "") {
+      //     rURL = message.data['page'];
+      //     print("page ${message.data['page']}");
+      //     _myController.loadUrl(rURL);
+      //   }
+      // }
+    });
+
+    // 아이폰 - 백그라운드/포그라운드 모두 message 컨트롤완료, 미실행시는 안됨...
+    // 안드로이드 - 백그라운드는 컨트롤완료
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
+      print('onMessageOpenedApp 로 들어옴.. ==== ${message}');
+
+      if (message != null) {
+        if (message.data.containsKey("page")) {
+          final page = message.data["page"];
+          pushPage = message.data["page"];
+          if (page != null) {
+            print('이동할 페이지는  ==== ${pushPage}');
+            await _myController
+                .evaluateJavascript("location.href='${pushPage}'");
+            //_myController.loadUrl(page);
+            //navigateTo(route);
+            // if (userRoll == "5") {
+            //   conttroller.changeTabIndex(2);
+            // } else {
+            //   conttroller.changeTabIndex(1);
+            // }
+          }
         }
       }
     });
+
     return true;
   }
 
@@ -320,7 +364,7 @@ class _AppState extends State<App> {
         // Check for errors
         if (snapshot.hasError) {
           //return SomethingWentWrong();  1업애고
-          return const CircularProgressIndicator();
+          return loadingWidget();
         }
 
         // Once complete, show your application
@@ -333,7 +377,7 @@ class _AppState extends State<App> {
 
         // Otherwise, show something whilst waiting for initialization to complete
         //return Loading(); 3 없애고
-        return const CircularProgressIndicator();
+        return loadingWidget();
       },
     );
   }
@@ -440,7 +484,7 @@ class _WebViewExampleState extends State<WebViewExample> {
             // Even Margin On All Sides
             margin: EdgeInsets.fromLTRB(0, marginTop, 0, 0),
             child: WebView(
-              initialUrl: 'http://mobile.eodilo.com',
+              //initialUrl: 'http://mobile.eodilo.com',
               javascriptMode: JavascriptMode.unrestricted,
               onWebViewCreated: (WebViewController webViewController) async {
                 //setState(() {
@@ -455,6 +499,11 @@ class _WebViewExampleState extends State<WebViewExample> {
                 SharedPreferences prefs = await SharedPreferences.getInstance();
                 pushToken = prefs.getString('PT') ?? "";
                 localToken = prefs.getString('LT') ?? "";
+
+                if (pushPage != "") {
+                  firstWebPage = pushPage;
+                  pushPage = "";
+                }
 
                 await webViewController.loadUrl(firstWebPage, headers: {
                   'pushToken': pushToken,
@@ -831,7 +880,7 @@ void _localNotiSetting() async {
   await flutterLocalNotificationsPlugin
       .resolvePlatformSpecificImplementation<
           AndroidFlutterLocalNotificationsPlugin>()
-      ?.createNotificationChannel(channel);
+      ?.createNotificationChannel(channel2);
 
   await flutterLocalNotificationsPlugin.initialize(initsetting);
   //await flutterLocalNotificationsPlugin.initialize(initsetting,      onSelectNotification: onSelectNotification);

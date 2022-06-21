@@ -17,6 +17,10 @@
         
         >
 
+
+            <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="@string/default_notification_channel_id"/>   
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -44,12 +48,7 @@
             <!--meta-data
               android:name="io.flutter.embedding.android.SplashScreenDrawable"
               android:resource="@drawable/launch_background"
-              /-->
-
-              <!--안드로이드 포그라운드 메세지를 위해 추가-->
-              <meta-data
-              android:name="com.google.firebase.messaging.default_notification_channel_id"
-              android:value="high_importance_channel" />
+              /-->  
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -59,6 +58,8 @@
                 <action android:name="FLUTTER_NOTIFICATION_CLICK"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
+
+            
         </activity>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
