@@ -16,7 +16,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter_app_badger/flutter_app_badger.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import './widget/widget_helper.dart';
-import 'dart:developer' show inspect;
+import './helper/notification.dart';
 //import 'package:http/http.dart' as http;
 //import 'package:device_info/device_info.dart';
 
@@ -70,20 +70,6 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   print('백그라운드에서  푸쉬받음 ==== ${message}');
   print('Message data: ${message.data}');
 
-  // 메세지를 받았다면 rURL 저장..
-  if (message != null) {
-    if (message.data.containsKey("page")) {
-      final rURL = message.data["page"];
-
-      if (rURL != null) {
-        final SharedPreferences prefs = await _prefs;
-        prefs.setString("rURL", rURL);
-
-        print('page ==== ${rURL}');
-      }
-    }
-  }
-
   // if (message.notification != null) {
   //   print('Message also contained a notification: ${message.notification}');
   // }
@@ -127,12 +113,19 @@ const AndroidNotificationChannel channel2 = AndroidNotificationChannel(
   importance: Importance.high,
 );
 
+Future<void> _firebaseMessagingForgroundHandler(RemoteMessage message) async {
+  // If you're going to use other Firebase services in the background, such as Firestore,
+  // make sure you call `initializeApp` before using other Firebase services.
+  await Firebase.initializeApp();
+  print('포그라운드 메세지 핸들링  ${message.messageId}');
+}
+
 /// Create a [AndroidNotificationChannel] for heads up notifications
 
 /// Initialize the [FlutterLocalNotificationsPlugin] package.
 late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 
-//void main() => runApp(MaterialApp(home: WebViewMain()));
+//void main() => runApp(MaterialApp(home: WebViewExample()));
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(App());
@@ -147,6 +140,7 @@ String loginToken = "";
 String pushToken = "";
 String rURL = "";
 String firstWebPage = "http://mobile.eodilo.com/login/autoLogin";
+String pushPage = "";
 
 late double pos_latitude = 0;
 late double pos_longitude = 0;
@@ -225,14 +219,13 @@ class _AppState extends State<App> {
     FirebaseMessaging.instance
         .getInitialMessage()
         .then((RemoteMessage? message) async {
-      print("여기는 처음입니다. ...................................");
-
       if (message != null) {
         //
         inspect(message);
         if (message.data.containsKey("page")) {
           final page = message.data["page"];
           if (page != null) {
+            print("여기는 처음입니다. ...................................");
             //_myController.evaluateJavascript("location.href='${page}'");
             //_myController.loadUrl(page);
             //navigateTo(route);
@@ -247,28 +240,11 @@ class _AppState extends State<App> {
     });
 
     if (Platform.isIOS) {
-      Future.microtask(() async {
-        await FirebaseMessaging.instance
-            .requestPermission(
-          alert: true,
-          announcement: false,
-          badge: true,
-          carPlay: false,
-          criticalAlert: false,
-          provisional: false,
-          sound: true,
-        )
-            .then((settings) {
-          print('User granted permission: ${settings.authorizationStatus}');
-        });
-
-        await FirebaseMessaging.instance
-            .setForegroundNotificationPresentationOptions(
-          alert: true,
-          badge: true,
-          sound: true,
-        );
-      });
+      NotificationSettings settings = await messaging.requestPermission(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
     }
 
     token = await messaging.getToken();
@@ -293,7 +269,7 @@ class _AppState extends State<App> {
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
     // 3번 실행됨..
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       RemoteNotification? notification = message.notification;
       AndroidNotification? android = message.notification?.android;
 
@@ -315,21 +291,26 @@ class _AppState extends State<App> {
             ));
       }
 
-      // 메세지를 받았다면 rURL 저장..
-      if (message != null) {
-        if (message.data.containsKey("page")) {
-          rURL = message.data["page"];
-          if (rURL != null) {
-            final SharedPreferences prefs = await _prefs;
-            prefs.setString("rURL", rURL);
-
-            print('page ==== ${rURL}');
-          }
+      inspect(message);
+      if (message.data.containsKey("page")) {
+        pushPage = message.data["page"];
+        final page = message.data["page"];
+        if (page != null) {
+          //_myController.evaluateJavascript("location.href='${page}'");
+          //_myController.loadUrl(page);
+          //navigateTo(route);
+          // if (userRoll == "5") {
+          //   conttroller.changeTabIndex(2);
+          // } else {
+          //   conttroller.changeTabIndex(1);
+          // }
         }
       }
+      // if (message.notification != null) {
+      //   print('Message also contained a notification: ${message.notification}');
+      // }
 
-      //안드로이드를 위해 이걸 하는 거라면
-      //_showNotification2(message);
+      ///_showNotification2(message);
 
       // 푸쉬받을때니까. 이거 말고.
       // if (message.data != null) {
@@ -341,32 +322,6 @@ class _AppState extends State<App> {
       // }
     });
 
-    FirebaseMessaging.instance.getInitialMessage().then((message) async {
-      print('getInitialMessage 로 들어옴.. ==== ${message}');
-
-      if (message != null) {
-        if (message.data.containsKey("page")) {
-          rURL = message.data["page"];
-          if (rURL != null) {
-            final SharedPreferences prefs = await _prefs;
-            prefs.setString("rURL", rURL);
-
-            print('page ==== ${rURL}');
-            // 포그라운드에서 아래 이벤트로 페이지 이동함.
-            await _myController.evaluateJavascript("location.href='${rURL}'");
-
-            //_myController.loadUrl(page);
-            //navigateTo(route);
-            // if (userRoll == "5") {
-            //   conttroller.changeTabIndex(2);
-            // } else {
-            //   conttroller.changeTabIndex(1);
-            // }
-          }
-        }
-      }
-    });
-
     // 아이폰 - 백그라운드/포그라운드 모두 message 컨트롤완료, 미실행시는 안됨...
     // 안드로이드 - 백그라운드는 컨트롤완료
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
@@ -374,16 +329,12 @@ class _AppState extends State<App> {
 
       if (message != null) {
         if (message.data.containsKey("page")) {
-          rURL = message.data["page"];
-          if (rURL != null) {
-            final SharedPreferences prefs = await _prefs;
-            prefs.setString("rURL", rURL);
-
-            print('page ==== ${rURL}');
-
-            // 포그라운드에서 아래 이벤트로 페이지 이동함.
-            await _myController.evaluateJavascript("location.href='${rURL}'");
-
+          final page = message.data["page"];
+          pushPage = message.data["page"];
+          if (page != null) {
+            print('이동할 페이지는  ==== ${pushPage}');
+            await _myController
+                .evaluateJavascript("location.href='${pushPage}'");
             //_myController.loadUrl(page);
             //navigateTo(route);
             // if (userRoll == "5") {
@@ -419,7 +370,7 @@ class _AppState extends State<App> {
         // Once complete, show your application
         if (snapshot.connectionState == ConnectionState.done) {
           return MaterialApp(
-            home: WebViewMain(),
+            home: WebViewExample(),
             debugShowCheckedModeBanner: false,
           ); // 여기이동
         }
@@ -454,12 +405,12 @@ The navigation delegate is set to block navigation to the youtube website.
 
 Future Gcontroller = "" as Future;
 
-class WebViewMain extends StatefulWidget {
+class WebViewExample extends StatefulWidget {
   @override
-  _WebViewMainState createState() => _WebViewMainState();
+  _WebViewExampleState createState() => _WebViewExampleState();
 }
 
-class _WebViewMainState extends State<WebViewMain> {
+class _WebViewExampleState extends State<WebViewExample> {
   /*  위치정보관련 변수 */
   static const String _kLocationServicesDisabledMessage =
       'Location services are disabled.';
@@ -548,16 +499,14 @@ class _WebViewMainState extends State<WebViewMain> {
                 SharedPreferences prefs = await SharedPreferences.getInstance();
                 pushToken = prefs.getString('PT') ?? "";
                 localToken = prefs.getString('LT') ?? "";
-                rURL = prefs.getString('rURL') ?? "";
 
-                // if (rURL != "") {
-                //   firstWebPage = rURL;
-                //   rURL = "";
-                // }
+                if (pushPage != "") {
+                  firstWebPage = pushPage;
+                  pushPage = "";
+                }
 
                 await webViewController.loadUrl(firstWebPage, headers: {
                   'pushToken': pushToken,
-                  'rURL': rURL,
                   'localToken': localToken
                 });
                 print({'pushToken': pushToken, 'localToken': localToken});
@@ -573,15 +522,6 @@ class _WebViewMainState extends State<WebViewMain> {
               },
               onPageFinished: (String url) async {
                 //await _controller.evaluateJavascript('hide_top()');
-
-                final SharedPreferences prefs = await _prefs;
-                var rURL = prefs.getString('rURL') ?? "";
-
-                if (rURL != "") {
-                  prefs.setString("rURL", "");
-                  await _myController
-                      .evaluateJavascript("location.href='${rURL}'");
-                }
               },
               gestureNavigationEnabled: true,
             ));
@@ -632,6 +572,8 @@ class _WebViewMainState extends State<WebViewMain> {
           print(message.message);
 
           if (message.message == "get_position") {
+            //showToast('==> 위치정보를 요청받았습니다.');
+
             getMyCurrentLocation();
 
             if (pos_latitude != 0) {
@@ -641,9 +583,9 @@ class _WebViewMainState extends State<WebViewMain> {
               _myController
                   .evaluateJavascript("appPos($pos_longitude, $pos_latitude)");
 
-              // Scaffold.of(context).showSnackBar(
-              //   SnackBar(content: Text("위치 정보 조회")),
-              // );
+              Scaffold.of(context).showSnackBar(
+                SnackBar(content: Text("위치 정보 조회")),
+              );
             }
           } else if (message.message == "get_position_for_voucher") {
             //showToast('==> 위치정보를 요청받았습니다.');
@@ -657,9 +599,6 @@ class _WebViewMainState extends State<WebViewMain> {
               _myController.evaluateJavascript(
                   "get_position_for_voucher($pos_longitude, $pos_latitude)");
             }
-          } else if (message.message == "404") {
-            _myController.evaluateJavascript('history.back()');
-            showToast("존재하지 않는 페이지를 호출하였습니다.");
           } else if (message.message == "open_app_setting") {
             openAppSettings();
           } else {
@@ -916,7 +855,7 @@ class NavigationControls extends StatelessWidget {
 void showToast(String message) {
   Fluttertoast.showToast(
       msg: message,
-      backgroundColor: Color.fromARGB(255, 19, 24, 105),
+      backgroundColor: Colors.white,
       toastLength: Toast.LENGTH_SHORT,
       gravity: ToastGravity.BOTTOM);
 }
