@@ -16,7 +16,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter_app_badger/flutter_app_badger.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import './widget/widget_helper.dart';
-import './helper/notification.dart';
+//import './helper/notification.dart';
 //import 'package:http/http.dart' as http;
 //import 'package:device_info/device_info.dart';
 
@@ -28,84 +28,15 @@ import './helper/notification.dart';
 ///
 ///
 
-Future _showNotification2(message) async {
-  String title, body, badges;
-
-  // AOS, iOS에 따라 message 오는 구조가 다르다. (직접 파베 찍어보면 확인 가능)
-  if (Platform.isAndroid) {
-    title = message['title'] ?? "";
-    body = message['body'] ?? "";
-    badges = message['data']['badge'];
-    print("AOS ${title} ${body}");
-  }
-  if (Platform.isIOS) {
-    //title = message['aps']['alert']['title'];
-    //body = message['aps']['alert']['body'];
-    print("IOS ========");
-    inspect(message);
-    print("IOS ========");
-  }
-  /* 여기서 바로 처리도 가능
-  var android = AndroidNotificationDetails('id', '',
-      channelDescription: "",
-      importance: Importance.max,
-      priority: Priority.max);
-  var ios = IOSNotificationDetails();
-  var detail = NotificationDetails(android: android, iOS: ios);
-
-  await flutterLocalNotificationsPlugin.show(
-    0,
-    '단일 Notification',
-    '단일 Notification 내용',
-    detail,
-    payload: 'Hello Flutter',
-  );
-  */
-}
-
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // If you're going to use other Firebase services in the background, such as Firestore,
   // make sure you call `initializeApp` before using other Firebase services.
   await Firebase.initializeApp();
-  print('백그라운드에서  푸쉬받음 ==== ${message}');
-  print('Message data: ${message.data}');
 
   // if (message.notification != null) {
   //   print('Message also contained a notification: ${message.notification}');
   // }
 }
-
-// Future _showNotification(message) async {
-//   String title, body;
-
-//   // AOS, iOS에 따라 message 오는 구조가 다르다. (직접 파베 찍어보면 확인 가능)
-//   if (Platform.isAndroid) {
-//     title = message['title'] ?? "";
-//     body = message['body'] ?? "";
-//   }
-//   if (Platform.isIOS) {
-//     title = message['aps']['alert']['title'];
-//     body = message['aps']['alert']['body'];
-//   }
-
-//   // AOS, iOS 별로 notification 표시 설정
-//   var androidNotiDetails = AndroidNotificationDetails(
-//       'dexterous.com.flutter.local_notifications', title, body,
-//       importance: Importance.max, priority: Priority.max);
-//   var iOSNotiDetails = IOSNotificationDetails();
-
-//   var details =
-//       NotificationDetails(android: androidNotiDetails, iOS: iOSNotiDetails);
-
-//   await flutterLocalNotificationsPlugin.show(
-//     0,
-//     title,
-//     body,
-//     details,
-//     payload: 'Hello Flutter',
-//   );
-//   // 0은 notification id 값을 넣으면 된다.
-// }
 
 const AndroidNotificationChannel channel2 = AndroidNotificationChannel(
   'high_importance_channel', // id
@@ -113,10 +44,25 @@ const AndroidNotificationChannel channel2 = AndroidNotificationChannel(
   importance: Importance.high,
 );
 
+/** 사용안함.. */
 Future<void> _firebaseMessagingForgroundHandler(RemoteMessage message) async {
   // If you're going to use other Firebase services in the background, such as Firestore,
   // make sure you call `initializeApp` before using other Firebase services.
   await Firebase.initializeApp();
+
+  if (message != null) {
+    inspect(message);
+    if (message.data.containsKey("page")) {
+      final page = message.data["page"];
+      if (page != null) {
+        ///////////////////////////////////////////////////////
+        final SharedPreferences prefs = await _prefs;
+        prefs.setString("pushPage", page);
+        ///////////////////////////////////////////////////////
+      }
+    }
+  }
+
   print('포그라운드 메세지 핸들링  ${message.messageId}');
 }
 
@@ -220,20 +166,14 @@ class _AppState extends State<App> {
         .getInitialMessage()
         .then((RemoteMessage? message) async {
       if (message != null) {
-        //
         inspect(message);
         if (message.data.containsKey("page")) {
           final page = message.data["page"];
           if (page != null) {
-            print("여기는 처음입니다. ...................................");
-            //_myController.evaluateJavascript("location.href='${page}'");
-            //_myController.loadUrl(page);
-            //navigateTo(route);
-            // if (userRoll == "5") {
-            //   conttroller.changeTabIndex(2);
-            // } else {
-            //   conttroller.changeTabIndex(1);
-            // }
+            ///////////////////////////////////////////////////////
+            final SharedPreferences prefs = await _prefs;
+            prefs.setString("pushPage", page);
+            ///////////////////////////////////////////////////////
           }
         }
       }
@@ -255,7 +195,6 @@ class _AppState extends State<App> {
       final SharedPreferences prefs = await _prefs;
       prefs.setString("PT", pushToken);
       pushToken = prefs.getString('PT') ?? "";
-      print('푸쉬토큰 ==== $pushToken');
     });
 
     // 포그라운드 알람 초기화 (iOS Configuration)
@@ -269,11 +208,22 @@ class _AppState extends State<App> {
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
     // 3번 실행됨..
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    // 요기서 페이징하면 클릭안해도 바로 이동해서 안됨..
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
       RemoteNotification? notification = message.notification;
       AndroidNotification? android = message.notification?.android;
 
-      print('onMessage 로 들어옴.. ==== ${message}');
+      // 바로 실행하므로 안드로이드 포그라운드를 위해 저장만 해줌..
+      if (message.data.containsKey("page")) {
+        final page = message.data["page"];
+        if (page != null) {
+          ///////////////////////////////////////////////////////
+          final SharedPreferences prefs = await _prefs;
+          prefs.setString("pushPage", page);
+          ///////////////////////////////////////////////////////
+        }
+      }
+
       // 안드로이드일때 아래실행..
       if (notification != null && android != null) {
         flutterLocalNotificationsPlugin.show(
@@ -290,58 +240,17 @@ class _AppState extends State<App> {
                   ticker: 'ticker'),
             ));
       }
-
-      inspect(message);
-      if (message.data.containsKey("page")) {
-        pushPage = message.data["page"];
-        final page = message.data["page"];
-        if (page != null) {
-          //_myController.evaluateJavascript("location.href='${page}'");
-          //_myController.loadUrl(page);
-          //navigateTo(route);
-          // if (userRoll == "5") {
-          //   conttroller.changeTabIndex(2);
-          // } else {
-          //   conttroller.changeTabIndex(1);
-          // }
-        }
-      }
-      // if (message.notification != null) {
-      //   print('Message also contained a notification: ${message.notification}');
-      // }
-
-      ///_showNotification2(message);
-
-      // 푸쉬받을때니까. 이거 말고.
-      // if (message.data != null) {
-      //   if (message.data['page'] != "") {
-      //     rURL = message.data['page'];
-      //     print("page ${message.data['page']}");
-      //     _myController.loadUrl(rURL);
-      //   }
-      // }
     });
 
-    // 아이폰 - 백그라운드/포그라운드 모두 message 컨트롤완료, 미실행시는 안됨...
+    // 아이폰 - 백그라운드/포그라운드 모두 message 컨트롤완료, teminated 는 init
     // 안드로이드 - 백그라운드는 컨트롤완료
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
-      print('onMessageOpenedApp 로 들어옴.. ==== ${message}');
-
       if (message != null) {
         if (message.data.containsKey("page")) {
-          final page = message.data["page"];
           pushPage = message.data["page"];
-          if (page != null) {
-            print('이동할 페이지는  ==== ${pushPage}');
+          if (pushPage != null) {
             await _myController
                 .evaluateJavascript("location.href='${pushPage}'");
-            //_myController.loadUrl(page);
-            //navigateTo(route);
-            // if (userRoll == "5") {
-            //   conttroller.changeTabIndex(2);
-            // } else {
-            //   conttroller.changeTabIndex(1);
-            // }
           }
         }
       }
@@ -521,6 +430,15 @@ class _WebViewExampleState extends State<WebViewExample> {
                 _alertJavascriptChannel(context),
               },
               onPageFinished: (String url) async {
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                rURL = prefs.getString('pushPage') ?? "";
+                prefs.setString("pushPage", "");
+
+                if (rURL != "") {
+                  await _myController
+                      .evaluateJavascript("location.href='${rURL}'");
+                }
+
                 //await _controller.evaluateJavascript('hide_top()');
               },
               gestureNavigationEnabled: true,
@@ -568,12 +486,7 @@ class _WebViewExampleState extends State<WebViewExample> {
     return JavascriptChannel(
         name: 'AlertControl',
         onMessageReceived: (JavascriptMessage message) {
-          // ignore: avoid_print
-          print(message.message);
-
           if (message.message == "get_position") {
-            //showToast('==> 위치정보를 요청받았습니다.');
-
             getMyCurrentLocation();
 
             if (pos_latitude != 0) {
@@ -582,20 +495,11 @@ class _WebViewExampleState extends State<WebViewExample> {
               //_myController.evaluateJavascript("appPos2(126.79635 , 37.71806)");
               _myController
                   .evaluateJavascript("appPos($pos_longitude, $pos_latitude)");
-
-              Scaffold.of(context).showSnackBar(
-                SnackBar(content: Text("위치 정보 조회")),
-              );
             }
           } else if (message.message == "get_position_for_voucher") {
-            //showToast('==> 위치정보를 요청받았습니다.');
-
             getMyCurrentLocation();
 
             if (pos_latitude != 0) {
-              print("==> 위치정보를 결과를 받았습니다.");
-
-              //_myController.evaluateJavascript("appPos2(126.79635 , 37.71806)");
               _myController.evaluateJavascript(
                   "get_position_for_voucher($pos_longitude, $pos_latitude)");
             }
@@ -855,7 +759,8 @@ class NavigationControls extends StatelessWidget {
 void showToast(String message) {
   Fluttertoast.showToast(
       msg: message,
-      backgroundColor: Colors.white,
+      textColor: Colors.white,
+      backgroundColor: Color.fromARGB(255, 102, 102, 164),
       toastLength: Toast.LENGTH_SHORT,
       gravity: ToastGravity.BOTTOM);
 }
@@ -882,44 +787,16 @@ void _localNotiSetting() async {
           AndroidFlutterLocalNotificationsPlugin>()
       ?.createNotificationChannel(channel2);
 
-  await flutterLocalNotificationsPlugin.initialize(initsetting);
-  //await flutterLocalNotificationsPlugin.initialize(initsetting,      onSelectNotification: onSelectNotification);
-
-  // FirebaseMessaging.configure(
-  //   onMessage: (Map<String, dynamic> message) async {
-  //     showNotification(
-  //         message['notification']['title'], message['notification']['body']);
-  //     print("onMessage: $message");
-  //   },
-  //   onLaunch: (Map<String, dynamic> message) async {
-  //     print("onLaunch: $message");
-  //     Navigator.pushNamed(context, '/notify');
-  //   },
-  //   onResume: (Map<String, dynamic> message) async {
-  //     print("onResume: $message");
-  //   },
-  // );
+  await flutterLocalNotificationsPlugin.initialize(initsetting,
+      onSelectNotification: handleClickNotification);
 }
 
-// Future onSelectNotification3(String payload) async {
-//   showDialog(
-//     context: context,
-//     builder: (_) {
-//       return new AlertDialog(
-//         title: Text("PayLoad"),
-//         content: Text("Payload : $payload"),
-//       );
-//     },
-//   );
-// }
+handleClickNotification(String? payload) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  rURL = prefs.getString('pushPage') ?? "";
+  prefs.setString("pushPage", "");
 
-Future<void> onSelectNotification2(
-    BuildContext context, String? payload) async {
-  //debugPrint("$payload");
-  showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-            title: Text('Notification Payload'),
-            content: Text('Payload: $payload'),
-          ));
+  if (rURL != "") {
+    await _myController.evaluateJavascript("location.href='${rURL}'");
+  }
 }
