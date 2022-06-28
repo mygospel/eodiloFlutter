@@ -15,6 +15,8 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter_app_badger/flutter_app_badger.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:shake/shake.dart';
+import 'package:flutter/services.dart';
 import './widget/widget_helper.dart';
 //import './helper/notification.dart';
 //import 'package:http/http.dart' as http;
@@ -340,8 +342,22 @@ class _WebViewExampleState extends State<WebViewExample> {
     super.initState();
 
     _localNotiSetting();
-
     getMyCurrentLocation();
+
+    ShakeDetector detector = ShakeDetector.autoStart(
+      onPhoneShake: () {
+        showToast('두번 흔들어 이용권보기');
+        _myController
+            .evaluateJavascript("location.href='/voucher_qr_all?shake=1'");
+
+        HapticFeedback.vibrate();
+        HapticFeedback.vibrate();
+      },
+      minimumShakeCount: 2, // 최소 흔들림횟수
+      shakeSlopTimeMS: 500,
+      shakeCountResetTime: 2000, // 흔들림 횟수 재설정시간
+      shakeThresholdGravity: 4.0, // 흔들림 중력
+    );
 
     if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
   }
