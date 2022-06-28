@@ -50,6 +50,7 @@ dependencies:
   fluttertoast: ^8.0.9
   dson: ^1.0.0
   flutter_app_badger: ^1.4.0
+  shake: ^2.1.0
 
 dependency_overrides:
   platform: ^3.1.0
