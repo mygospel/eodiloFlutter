@@ -18,6 +18,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shake/shake.dart';
 import 'package:flutter/services.dart';
 import './widget/widget_helper.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 //import './helper/notification.dart';
 //import 'package:http/http.dart' as http;
 //import 'package:device_info/device_info.dart';
@@ -75,7 +76,8 @@ late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 
 //void main() => runApp(MaterialApp(home: WebViewExample()));
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   runApp(App());
 
   /// 요렇게 바꿈.
@@ -168,7 +170,6 @@ class _AppState extends State<App> {
         .getInitialMessage()
         .then((RemoteMessage? message) async {
       if (message != null) {
-        inspect(message);
         if (message.data.containsKey("page")) {
           final page = message.data["page"];
           if (page != null) {
@@ -183,10 +184,13 @@ class _AppState extends State<App> {
 
     if (Platform.isIOS) {
       NotificationSettings settings = await messaging.requestPermission(
-        alert: true,
-        badge: true,
-        sound: true,
-      );
+          alert: true,
+          announcement: true,
+          badge: true,
+          carPlay: true,
+          criticalAlert: true,
+          provisional: true,
+          sound: true);
     }
 
     token = await messaging.getToken();
@@ -257,6 +261,8 @@ class _AppState extends State<App> {
         }
       }
     });
+
+    FlutterNativeSplash.remove();
 
     return true;
   }
