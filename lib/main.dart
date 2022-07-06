@@ -97,6 +97,16 @@ late double pos_longitude = 0;
 
 late WebViewController _myController;
 
+Future<void> onSelectNotification(BuildContext context, String payload) async {
+  debugPrint("$payload");
+  showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+            title: Text('Notification Payload'),
+            content: Text('Payload: $payload'),
+          ));
+}
+
 class App extends StatefulWidget {
   // Create the initialization Future outside of `build`:
   @override
@@ -145,16 +155,6 @@ Future<void> getMyCurrentLocation() async {
   }
 }
 
-Future<void> onSelectNotification(BuildContext context, String payload) async {
-  debugPrint("$payload");
-  showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-            title: Text('Notification Payload'),
-            content: Text('Payload: $payload'),
-          ));
-}
-
 class _AppState extends State<App> {
   /// The future is part of the state of our widget. We should not call `initializeApp`
   /// directly inside [build].
@@ -166,6 +166,7 @@ class _AppState extends State<App> {
   Future<bool> _initialization() async {
     await Firebase.initializeApp();
     FirebaseMessaging messaging = FirebaseMessaging.instance;
+
     FirebaseMessaging.instance
         .getInitialMessage()
         .then((RemoteMessage? message) async {
@@ -176,6 +177,8 @@ class _AppState extends State<App> {
             ///////////////////////////////////////////////////////
             final SharedPreferences prefs = await _prefs;
             prefs.setString("pushPage", page);
+            await _myController
+                .evaluateJavascript("location.href='${pushPage}'");
             ///////////////////////////////////////////////////////
           }
         }
@@ -221,9 +224,10 @@ class _AppState extends State<App> {
 
       // 바로 실행하므로 안드로이드 포그라운드를 위해 저장만 해줌..
       if (message.data.containsKey("page")) {
-        final page = message.data["page"];
+        var page = message.data["page"];
         if (page != null) {
           ///////////////////////////////////////////////////////
+
           final SharedPreferences prefs = await _prefs;
           prefs.setString("pushPage", page);
           ///////////////////////////////////////////////////////
@@ -238,9 +242,9 @@ class _AppState extends State<App> {
             notification.body,
             NotificationDetails(
               android: AndroidNotificationDetails(
-                  'your channel id', 'your channel name',
+                  'high_importance_channel', // id
+                  'High Importance Notifications', //description
                   channelDescription: 'your channel description',
-                  icon: 'launch_background',
                   importance: Importance.max,
                   priority: Priority.high,
                   ticker: 'ticker'),
@@ -418,18 +422,14 @@ class _WebViewExampleState extends State<WebViewExample> {
               //initialUrl: 'http://mobile.eodilo.com',
               javascriptMode: JavascriptMode.unrestricted,
               onWebViewCreated: (WebViewController webViewController) async {
-                //setState(() {
-                //  _controller = webViewController;
-                //});
-
                 _myController = webViewController; // 외부연결을 위해 추가함?
-
                 _controller.complete(webViewController);
-                //_controller.evaluateJavascript('hide_top()');
 
                 SharedPreferences prefs = await SharedPreferences.getInstance();
                 pushToken = prefs.getString('PT') ?? "";
                 localToken = prefs.getString('LT') ?? "";
+                pushPage = prefs.getString('pushPage') ?? "";
+                prefs.setString("pushPage", "");
 
                 if (pushPage != "") {
                   firstWebPage = pushPage;
@@ -452,15 +452,6 @@ class _WebViewExampleState extends State<WebViewExample> {
                 _alertJavascriptChannel(context),
               },
               onPageFinished: (String url) async {
-                SharedPreferences prefs = await SharedPreferences.getInstance();
-                rURL = prefs.getString('pushPage') ?? "";
-                prefs.setString("pushPage", "");
-
-                if (rURL != "") {
-                  await _myController
-                      .evaluateJavascript("location.href='${rURL}'");
-                }
-
                 //await _controller.evaluateJavascript('hide_top()');
               },
               gestureNavigationEnabled: true,
@@ -532,12 +523,6 @@ class _WebViewExampleState extends State<WebViewExample> {
               SnackBar(content: Text(message.message)),
             );
           }
-
-          // Toast.show(message.message, context,
-          //     duration: Toast.LENGTH_LONG,
-          //     gravity: Toast.CENTER,
-          //     backgroundColor: Colors.black38,
-          //     backgroundRadius: 5);
         });
   }
 }
@@ -813,12 +798,13 @@ void _localNotiSetting() async {
       onSelectNotification: handleClickNotification);
 }
 
+// 안드로이에서 포그라운드 푸시 클릭시 실행됨.
 handleClickNotification(String? payload) async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  rURL = prefs.getString('pushPage') ?? "";
+  final SharedPreferences prefs = await _prefs;
+  pushPage = prefs.getString('pushPage') ?? "";
   prefs.setString("pushPage", "");
 
-  if (rURL != "") {
-    await _myController.evaluateJavascript("location.href='${rURL}'");
+  if (pushPage != "") {
+    await _myController.evaluateJavascript("location.href='${pushPage}'");
   }
 }
