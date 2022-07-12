@@ -332,6 +332,8 @@ class WebViewExample extends StatefulWidget {
 }
 
 class _WebViewExampleState extends State<WebViewExample> {
+  bool loading = true;
+
   /*  위치정보관련 변수 */
   static const String _kLocationServicesDisabledMessage =
       'Location services are disabled.';
@@ -347,9 +349,23 @@ class _WebViewExampleState extends State<WebViewExample> {
   // 디바이스에 의한 TOP설정을 위한 변수
   double marginTop = 0.0;
 
+  startSplashScreen() async {
+    var duration = const Duration(seconds: 3);
+    return Timer(
+      duration,
+      () {
+        setState(() {
+          loading = false;
+        });
+      },
+    );
+  }
+
   @override
   void initState() {
     super.initState();
+
+    startSplashScreen();
 
     _localNotiSetting();
     getMyCurrentLocation();
@@ -414,48 +430,62 @@ class _WebViewExampleState extends State<WebViewExample> {
           }
         } catch (error) {}
 
-        return Container(
+        return loading == true
+            ? SizedBox(
+                width: double.infinity, //가로 꽉 차게 설정
+                height: double.infinity, //세로 꽉 차게 설정
+                child: Container(
+                  color: Color(0xff22274b),
+                  height: 300.0,
+                  width: 300.0,
+                  padding: EdgeInsets.fromLTRB(70, 0, 70, 0),
+                  child: Image.asset('assets/splash.gif'),
+                ))
+            : Container(
 
-            // Even Margin On All Sides
-            margin: EdgeInsets.fromLTRB(0, marginTop, 0, 0),
-            child: WebView(
-              //initialUrl: 'http://mobile.eodilo.com',
-              javascriptMode: JavascriptMode.unrestricted,
-              onWebViewCreated: (WebViewController webViewController) async {
-                _myController = webViewController; // 외부연결을 위해 추가함?
-                _controller.complete(webViewController);
+                // Even Margin On All Sides
+                margin: EdgeInsets.fromLTRB(0, marginTop, 0, 0),
+                child: WebView(
+                  //initialUrl: 'http://mobile.eodilo.com',
+                  userAgent: "random",
+                  javascriptMode: JavascriptMode.unrestricted,
+                  onWebViewCreated:
+                      (WebViewController webViewController) async {
+                    _myController = webViewController; // 외부연결을 위해 추가함?
+                    _controller.complete(webViewController);
 
-                SharedPreferences prefs = await SharedPreferences.getInstance();
-                pushToken = prefs.getString('PT') ?? "";
-                localToken = prefs.getString('LT') ?? "";
-                pushPage = prefs.getString('pushPage') ?? "";
-                prefs.setString("pushPage", "");
+                    SharedPreferences prefs =
+                        await SharedPreferences.getInstance();
+                    pushToken = prefs.getString('PT') ?? "";
+                    localToken = prefs.getString('LT') ?? "";
+                    pushPage = prefs.getString('pushPage') ?? "";
+                    prefs.setString("pushPage", "");
 
-                if (pushPage != "") {
-                  firstWebPage = pushPage;
-                  pushPage = "";
-                }
+                    if (pushPage != "") {
+                      firstWebPage = pushPage;
+                      pushPage = "";
+                    }
 
-                await webViewController.loadUrl(firstWebPage, headers: {
-                  'pushToken': pushToken,
-                  'localToken': localToken
-                });
-                print({'pushToken': pushToken, 'localToken': localToken});
-              },
-              onProgress: (int progress) {
-                print("WebView is loading first (progress : $progress%)");
-              },
-              javascriptChannels: <JavascriptChannel>{
-                _toasterJavascriptChannel(context),
-                _loginWeb2saveTokenJavascriptChannel(context),
-                _loginAutoJavascriptChannel(context),
-                _alertJavascriptChannel(context),
-              },
-              onPageFinished: (String url) async {
-                //await _controller.evaluateJavascript('hide_top()');
-              },
-              gestureNavigationEnabled: true,
-            ));
+                    await webViewController.loadUrl(firstWebPage, headers: {
+                      'pushToken': pushToken,
+                      'localToken': localToken
+                    });
+                    print({'pushToken': pushToken, 'localToken': localToken});
+                  },
+                  onProgress: (int progress) {
+                    print("WebView is loading first (progress : $progress%)");
+                  },
+                  javascriptChannels: <JavascriptChannel>{
+                    _toasterJavascriptChannel(context),
+                    _loginWeb2saveTokenJavascriptChannel(context),
+                    _loginAutoJavascriptChannel(context),
+                    _alertJavascriptChannel(context),
+                  },
+                  onPageFinished: (String url) async {
+                    //await _controller.evaluateJavascript('hide_top()');
+                  },
+                  gestureNavigationEnabled: true,
+                ));
       }),
       //bottomNavigationBar: Bottom(),
     );
