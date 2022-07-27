@@ -349,6 +349,8 @@ class _WebViewExampleState extends State<WebViewExample> {
   // 디바이스에 의한 TOP설정을 위한 변수
   double marginTop = 0.0;
 
+  late ShakeDetector detector;
+
   startSplashScreen() async {
     var duration = const Duration(seconds: 3);
     return Timer(
@@ -365,27 +367,32 @@ class _WebViewExampleState extends State<WebViewExample> {
   void initState() {
     super.initState();
 
+    detector = ShakeDetector.waitForStart(
+      onPhoneShake: () {
+        //showToast('두번 흔들어 이용권보기');
+        _myController
+            .evaluateJavascript("location.href='/voucher_all?shake=1'");
+        HapticFeedback.vibrate();
+      },
+      minimumShakeCount: 1, // 최소 흔들림횟수
+      shakeSlopTimeMS: 500,
+      shakeCountResetTime: 500, // 흔들림 횟수 재설정시간
+      shakeThresholdGravity: 4.0, // 흔들림 중력
+    );
+    detector.startListening();
+
     startSplashScreen();
 
     _localNotiSetting();
     getMyCurrentLocation();
 
-    ShakeDetector detector = ShakeDetector.autoStart(
-      onPhoneShake: () {
-        showToast('두번 흔들어 이용권보기');
-        _myController
-            .evaluateJavascript("location.href='/voucher_qr_all?shake=1'");
-
-        HapticFeedback.vibrate();
-        HapticFeedback.vibrate();
-      },
-      minimumShakeCount: 2, // 최소 흔들림횟수
-      shakeSlopTimeMS: 500,
-      shakeCountResetTime: 2000, // 흔들림 횟수 재설정시간
-      shakeThresholdGravity: 4.0, // 흔들림 중력
-    );
-
     if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
+  }
+
+  @override
+  void dispose() {
+    detector.stopListening();
+    super.dispose();
   }
 
   @override
@@ -431,16 +438,16 @@ class _WebViewExampleState extends State<WebViewExample> {
         } catch (error) {}
 
         return loading == true
-            ? SizedBox(
-                width: double.infinity, //가로 꽉 차게 설정
-                height: double.infinity, //세로 꽉 차게 설정
+            ? Center(
                 child: Container(
-                  color: Color(0xff22274b),
-                  height: 300.0,
-                  width: 300.0,
-                  padding: EdgeInsets.fromLTRB(70, 0, 70, 0),
-                  child: Image.asset('assets/splash.gif'),
-                ))
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    repeat: ImageRepeat.repeat,
+                    image: AssetImage("assets/splash.gif"),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ))
             : Container(
 
                 // Even Margin On All Sides
