@@ -1,6 +1,4 @@
 PODS:
-  - "app_settings (3.0.0+1)":
-    - Flutter
   - device_info (0.0.1):
     - Flutter
   - Firebase/CoreOnly (8.15.0):
@@ -91,7 +89,6 @@ PODS:
     - Flutter
 
 DEPENDENCIES:
-  - app_settings (from `.symlinks/plugins/app_settings/ios`)
   - device_info (from `.symlinks/plugins/device_info/ios`)
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
   - firebase_messaging (from `.symlinks/plugins/firebase_messaging/ios`)
@@ -121,8 +118,6 @@ SPEC REPOS:
     - Toast
 
 EXTERNAL SOURCES:
-  app_settings:
-    :path: ".symlinks/plugins/app_settings/ios"
   device_info:
     :path: ".symlinks/plugins/device_info/ios"
   firebase_core:
@@ -153,7 +148,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/webview_flutter_wkwebview/ios"
 
 SPEC CHECKSUMS:
-  app_settings: d103828c9f5d515c4df9ee754dabd443f7cedcf3
   device_info: d7d233b645a32c40dfdc212de5cf646ca482f175
   Firebase: 5f8193dff4b5b7c5d5ef72ae54bb76c08e2b841d
   firebase_core: 6ef152b7d6a361e24105e2cc56ab458f1f8367fe
