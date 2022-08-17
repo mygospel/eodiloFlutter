@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
+import 'package:flutter/services.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -448,51 +449,57 @@ class _WebViewExampleState extends State<WebViewExample> {
                   ),
                 ),
               ))
-            : Container(
+            : WillPopScope(
+                //onWillPop: () => _goBack(context),
+                onWillPop: () => _goBack(context),
+                child: Container(
 
-                // Even Margin On All Sides
-                margin: EdgeInsets.fromLTRB(0, marginTop, 0, 0),
-                child: WebView(
-                  //initialUrl: 'http://mobile.eodilo.com',
-                  userAgent: "random",
-                  javascriptMode: JavascriptMode.unrestricted,
-                  onWebViewCreated:
-                      (WebViewController webViewController) async {
-                    _myController = webViewController; // 외부연결을 위해 추가함?
-                    _controller.complete(webViewController);
+                    // Even Margin On All Sides
+                    margin: EdgeInsets.fromLTRB(0, marginTop, 0, 0),
+                    child: WebView(
+                      //initialUrl: 'http://mobile.eodilo.com',
+                      userAgent: "random",
+                      zoomEnabled: true,
+                      javascriptMode: JavascriptMode.unrestricted,
+                      onWebViewCreated:
+                          (WebViewController webViewController) async {
+                        _myController = webViewController; // 외부연결을 위해 추가함?
+                        _controller.complete(webViewController);
 
-                    SharedPreferences prefs =
-                        await SharedPreferences.getInstance();
-                    pushToken = prefs.getString('PT') ?? "";
-                    localToken = prefs.getString('LT') ?? "";
-                    pushPage = prefs.getString('pushPage') ?? "";
-                    prefs.setString("pushPage", "");
+                        SharedPreferences prefs =
+                            await SharedPreferences.getInstance();
+                        pushToken = prefs.getString('PT') ?? "";
+                        localToken = prefs.getString('LT') ?? "";
+                        pushPage = prefs.getString('pushPage') ?? "";
+                        prefs.setString("pushPage", "");
 
-                    if (pushPage != "") {
-                      firstWebPage = pushPage;
-                      pushPage = "";
-                    }
+                        if (pushPage != "") {
+                          firstWebPage = pushPage;
+                          pushPage = "";
+                        }
 
-                    await webViewController.loadUrl(firstWebPage, headers: {
-                      'pushToken': pushToken,
-                      'localToken': localToken
-                    });
-                    print({'pushToken': pushToken, 'localToken': localToken});
-                  },
-                  onProgress: (int progress) {
-                    print("WebView is loading first (progress : $progress%)");
-                  },
-                  javascriptChannels: <JavascriptChannel>{
-                    _toasterJavascriptChannel(context),
-                    _loginWeb2saveTokenJavascriptChannel(context),
-                    _loginAutoJavascriptChannel(context),
-                    _alertJavascriptChannel(context),
-                  },
-                  onPageFinished: (String url) async {
-                    //await _controller.evaluateJavascript('hide_top()');
-                  },
-                  gestureNavigationEnabled: true,
-                ));
+                        await webViewController.loadUrl(firstWebPage, headers: {
+                          'pushToken': pushToken,
+                          'localToken': localToken
+                        });
+                        print(
+                            {'pushToken': pushToken, 'localToken': localToken});
+                      },
+                      onProgress: (int progress) {
+                        print(
+                            "WebView is loading first (progress : $progress%)");
+                      },
+                      javascriptChannels: <JavascriptChannel>{
+                        _toasterJavascriptChannel(context),
+                        _loginWeb2saveTokenJavascriptChannel(context),
+                        _loginAutoJavascriptChannel(context),
+                        _alertJavascriptChannel(context),
+                      },
+                      onPageFinished: (String url) async {
+                        //await _controller.evaluateJavascript('hide_top()');
+                      },
+                      gestureNavigationEnabled: true,
+                    )));
       }),
       //bottomNavigationBar: Bottom(),
     );
@@ -833,6 +840,18 @@ void _localNotiSetting() async {
 
   await flutterLocalNotificationsPlugin.initialize(initsetting,
       onSelectNotification: handleClickNotification);
+}
+
+Future<bool> _goBack(BuildContext context) async {
+  if (_myController == null) {
+    return true;
+  }
+  if (await _myController.canGoBack()) {
+    _myController.goBack();
+    return Future.value(false);
+  } else {
+    return Future.value(true);
+  }
 }
 
 // 안드로이에서 포그라운드 푸시 클릭시 실행됨.
