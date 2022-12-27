@@ -30,7 +30,10 @@
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+<<<<<<< HEAD
 <<<<<<< Updated upstream
+=======
+>>>>>>> parent of aa98d1d (3.x 업데이트 안됨.)
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoadsInWebContent</key>
@@ -53,10 +56,13 @@
 		<string>fetch</string>
 		<string>remote-notification</string>
 	</array>
+<<<<<<< HEAD
 =======
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 >>>>>>> Stashed changes
+=======
+>>>>>>> parent of aa98d1d (3.x 업데이트 안됨.)
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen.storyboard</string>
 	<key>UIMainStoryboardFile</key>

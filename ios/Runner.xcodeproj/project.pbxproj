@@ -14,6 +14,10 @@
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
+<<<<<<< HEAD
+=======
+		BAC721308086445C41D2A4DF /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CE6AF72877EFE75D1A25C9A1 /* Pods_Runner.framework */; };
+>>>>>>> parent of aa98d1d (3.x 업데이트 안됨.)
 		FF452F4128587B5400FD66EB /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = FF452F4028587B5400FD66EB /* GoogleService-Info.plist */; };
 /* End PBXBuildFile section */
 
@@ -38,15 +42,25 @@
 		74858FAE1ED2DC5600515810 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		7814DC53E9AA53C011967A8F /* Pods-Runner.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"; sourceTree = "<group>"; };
 		7AFA3C8E1D35360C0083082E /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Release.xcconfig; path = Flutter/Release.xcconfig; sourceTree = "<group>"; };
+<<<<<<< HEAD
 		7CC9302718A2617A3A7620E1 /* Pods-Runner.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"; sourceTree = "<group>"; };
+=======
+>>>>>>> parent of aa98d1d (3.x 업데이트 안됨.)
 		9740EEB21CF90195004384FC /* Debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Debug.xcconfig; path = Flutter/Debug.xcconfig; sourceTree = "<group>"; };
 		9740EEB31CF90195004384FC /* Generated.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Generated.xcconfig; path = Flutter/Generated.xcconfig; sourceTree = "<group>"; };
 		97C146EE1CF9000F007C117D /* Runner.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Runner.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		97C146FB1CF9000F007C117D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		97C146FD1CF9000F007C117D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		97C147001CF9000F007C117D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+<<<<<<< HEAD
 		EA950F6B0817D34CC25FDF70 /* Pods-Runner.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"; sourceTree = "<group>"; };
 		EE855B4AA640E37A26D9DCD2 /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+=======
+		B0799DB64D0B0B4CF9BBBBE5 /* Pods-Runner.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"; sourceTree = "<group>"; };
+		CE6AF72877EFE75D1A25C9A1 /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		D72FEB0056546F60FACFD193 /* Pods-Runner.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"; sourceTree = "<group>"; };
+		F847EBF2E94A9E9929B19DAC /* Pods-Runner.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"; sourceTree = "<group>"; };
+>>>>>>> parent of aa98d1d (3.x 업데이트 안됨.)
 		FF452F4028587B5400FD66EB /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		FF50FD94287BD17500793686 /* RunnerProfile.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = RunnerProfile.entitlements; sourceTree = "<group>"; };
 		FFF8C68E282543AA00DAD778 /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Base; path = Base.lproj/Info.plist; sourceTree = "<group>"; };
@@ -58,7 +72,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+<<<<<<< HEAD
 				4DD5E9CA6669AE267C7E0052 /* Pods_Runner.framework in Frameworks */,
+=======
+				BAC721308086445C41D2A4DF /* Pods_Runner.framework in Frameworks */,
+>>>>>>> parent of aa98d1d (3.x 업데이트 안됨.)
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -68,9 +86,15 @@
 		4797DB24A25504A20A26B4D8 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
+<<<<<<< HEAD
 				7CC9302718A2617A3A7620E1 /* Pods-Runner.debug.xcconfig */,
 				EA950F6B0817D34CC25FDF70 /* Pods-Runner.release.xcconfig */,
 				7814DC53E9AA53C011967A8F /* Pods-Runner.profile.xcconfig */,
+=======
+				F847EBF2E94A9E9929B19DAC /* Pods-Runner.debug.xcconfig */,
+				B0799DB64D0B0B4CF9BBBBE5 /* Pods-Runner.release.xcconfig */,
+				D72FEB0056546F60FACFD193 /* Pods-Runner.profile.xcconfig */,
+>>>>>>> parent of aa98d1d (3.x 업데이트 안됨.)
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -93,7 +117,11 @@
 				97C146F01CF9000F007C117D /* Runner */,
 				97C146EF1CF9000F007C117D /* Products */,
 				4797DB24A25504A20A26B4D8 /* Pods */,
+<<<<<<< HEAD
 				E53F3E830501E67C3CC2CF34 /* Frameworks */,
+=======
+				F2F61AD91197746E9532174B /* Frameworks */,
+>>>>>>> parent of aa98d1d (3.x 업데이트 안됨.)
 			);
 			sourceTree = "<group>";
 		};
@@ -123,10 +151,17 @@
 			path = Runner;
 			sourceTree = "<group>";
 		};
+<<<<<<< HEAD
 		E53F3E830501E67C3CC2CF34 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
 				EE855B4AA640E37A26D9DCD2 /* Pods_Runner.framework */,
+=======
+		F2F61AD91197746E9532174B /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				CE6AF72877EFE75D1A25C9A1 /* Pods_Runner.framework */,
+>>>>>>> parent of aa98d1d (3.x 업데이트 안됨.)
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -138,14 +173,22 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 97C147051CF9000F007C117D /* Build configuration list for PBXNativeTarget "Runner" */;
 			buildPhases = (
+<<<<<<< HEAD
 				1D939E175C4198E580911D30 /* [CP] Check Pods Manifest.lock */,
+=======
+				B52ED2203C0ADCD135E84E59 /* [CP] Check Pods Manifest.lock */,
+>>>>>>> parent of aa98d1d (3.x 업데이트 안됨.)
 				9740EEB61CF901F6004384FC /* Run Script */,
 				97C146EA1CF9000F007C117D /* Sources */,
 				97C146EB1CF9000F007C117D /* Frameworks */,
 				97C146EC1CF9000F007C117D /* Resources */,
 				9705A1C41CF9048500538489 /* Embed Frameworks */,
 				3B06AD1E1E4923F5004D2608 /* Thin Binary */,
+<<<<<<< HEAD
 				8052EC4AB3AAF5C2142216CA /* [CP] Embed Pods Frameworks */,
+=======
+				75209C09DA3A5DE46884FA00 /* [CP] Embed Pods Frameworks */,
+>>>>>>> parent of aa98d1d (3.x 업데이트 안됨.)
 			);
 			buildRules = (
 			);
@@ -205,7 +248,56 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+<<<<<<< HEAD
 		1D939E175C4198E580911D30 /* [CP] Check Pods Manifest.lock */ = {
+=======
+		3B06AD1E1E4923F5004D2608 /* Thin Binary */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Thin Binary";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" embed_and_thin";
+		};
+		75209C09DA3A5DE46884FA00 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		9740EEB61CF901F6004384FC /* Run Script */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Run Script";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" build";
+		};
+		B52ED2203C0ADCD135E84E59 /* [CP] Check Pods Manifest.lock */ = {
+>>>>>>> parent of aa98d1d (3.x 업데이트 안됨.)
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -373,7 +465,11 @@
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/RunnerProfile.entitlements;
+<<<<<<< HEAD
 				CURRENT_PROJECT_VERSION = 0.3.9;
+=======
+				CURRENT_PROJECT_VERSION = 0.4.0;
+>>>>>>> parent of aa98d1d (3.x 업데이트 안됨.)
 				DEVELOPMENT_TEAM = 68QHSW2RG5;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
@@ -381,12 +477,16 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+<<<<<<< HEAD
 <<<<<<< Updated upstream
 				MARKETING_VERSION = 0.3.9;
 =======
 				MARKETING_VERSION = 0.41;
 				ONLY_ACTIVE_ARCH = YES;
 >>>>>>> Stashed changes
+=======
+				MARKETING_VERSION = 0.4.0;
+>>>>>>> parent of aa98d1d (3.x 업데이트 안됨.)
 				PRODUCT_BUNDLE_IDENTIFIER = kr.co.expertbuilder.eodilo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
@@ -512,7 +612,11 @@
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
+<<<<<<< HEAD
 				CURRENT_PROJECT_VERSION = 0.3.9;
+=======
+				CURRENT_PROJECT_VERSION = 0.4.0;
+>>>>>>> parent of aa98d1d (3.x 업데이트 안됨.)
 				DEVELOPMENT_TEAM = 68QHSW2RG5;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
@@ -520,7 +624,11 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+<<<<<<< HEAD
 				MARKETING_VERSION = 0.3.9;
+=======
+				MARKETING_VERSION = 0.4.0;
+>>>>>>> parent of aa98d1d (3.x 업데이트 안됨.)
 				PRODUCT_BUNDLE_IDENTIFIER = kr.co.expertbuilder.eodilo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
@@ -538,7 +646,11 @@
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
+<<<<<<< HEAD
 				CURRENT_PROJECT_VERSION = 0.3.9;
+=======
+				CURRENT_PROJECT_VERSION = 0.4.0;
+>>>>>>> parent of aa98d1d (3.x 업데이트 안됨.)
 				DEVELOPMENT_TEAM = 68QHSW2RG5;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
@@ -546,12 +658,16 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+<<<<<<< HEAD
 <<<<<<< Updated upstream
 				MARKETING_VERSION = 0.3.9;
 =======
 				MARKETING_VERSION = 0.41;
 				ONLY_ACTIVE_ARCH = YES;
 >>>>>>> Stashed changes
+=======
+				MARKETING_VERSION = 0.4.0;
+>>>>>>> parent of aa98d1d (3.x 업데이트 안됨.)
 				PRODUCT_BUNDLE_IDENTIFIER = kr.co.expertbuilder.eodilo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";

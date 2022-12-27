@@ -47,7 +47,11 @@ dependencies:
   get: ^3.24.0
   geolocator: ^8.2.1
   permission_handler: ^9.2.0
+<<<<<<< HEAD
   fluttertoast: ^8.0.9
+=======
+  fluttertoast: ^8.1.1
+>>>>>>> parent of aa98d1d (3.x 업데이트 안됨.)
   dson: ^1.0.0
   flutter_app_badger: ^1.4.0
   shake: ^2.1.0
