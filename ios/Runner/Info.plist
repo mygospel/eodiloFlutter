@@ -30,6 +30,7 @@
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+<<<<<<< Updated upstream
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoadsInWebContent</key>
@@ -52,8 +53,12 @@
 		<string>fetch</string>
 		<string>remote-notification</string>
 	</array>
+=======
+	<key>UIApplicationSupportsIndirectInputEvents</key>
+	<true/>
+>>>>>>> Stashed changes
 	<key>UILaunchStoryboardName</key>
-	<string>LaunchScreen</string>
+	<string>LaunchScreen.storyboard</string>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
 	<key>UISupportedInterfaceOrientations</key>
